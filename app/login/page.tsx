@@ -4,16 +4,17 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function LogIn() {
 
-    const supabase = createClient();
       const handleGoogleLogin = async () => {
+        const supabase = createClient();
+
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
             redirectTo: `${window.location.origin}/api/auth/callback/google`,
+            scopes: "https://www.googleapis.com/auth/calendar.events",
             queryParams: {
               access_type: "offline",
               prompt: "consent",
-              scopes: "https://www.googleapis.com/auth/calendar.events",
             },
           },
         });

@@ -7,11 +7,12 @@ import { useRouter } from "next/navigation";
 export default function SchedulePage() {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
     const router = useRouter();
 
     useEffect(() => {
         const checkUser = async () => {
+            const supabase = createClient();
+
             // Supabaseからログインユーザーを取得
             const { data: { user } } = await supabase.auth.getUser();
             
@@ -24,10 +25,12 @@ export default function SchedulePage() {
             setLoading(false);
         };
         checkUser();
-    }, [supabase, router]);
+    }, [router]);
 
     // ログアウト処理
     const handleSignOut = async () => {
+        const supabase = createClient();
+
         await supabase.auth.signOut();
         router.push("/");
     };
