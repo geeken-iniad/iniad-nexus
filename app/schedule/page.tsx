@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
+import LogoutButton from "../components/LogoutButton";
 
 export default function SchedulePage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
     const router = useRouter();
@@ -26,12 +28,6 @@ export default function SchedulePage() {
         checkUser();
     }, [supabase, router]);
 
-    // ログアウト処理
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        router.push("/");
-    };
-
     if (loading) return <div className="p-10 text-center text-gray-500">読み込み中...</div>;
 
     return (
@@ -40,12 +36,12 @@ export default function SchedulePage() {
                 <h2 className="font-semibold text-lg text-blue-900">スケジュール</h2>
                 <div className="flex items-center gap-4">
                     <span className="text-sm text-gray-600">{user?.email}</span>
-                    <button 
-                        onClick={handleSignOut}
+                    <LogoutButton
+                        redirectTo="/"
                         className="text-sm text-gray-500 hover:text-red-500 transition"
                     >
                         ログアウト
-                    </button>
+                    </LogoutButton>
                 </div>
             </nav>
             <main className="p-4 md:p-8 h-[calc(100vh-80px)]">

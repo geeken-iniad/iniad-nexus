@@ -2,9 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LogoutButton from './LogoutButton';
 
 export default function BottomNav() {
   const pathname = usePathname();
+
+  if (pathname !== '/') {
+    return null;
+  }
 
   const navItems = [
     { href: '/', label: 'Home', icon: '🏠' },
@@ -41,6 +46,12 @@ export default function BottomNav() {
           </Link>
         );
       })}
+      <LogoutButton className="flex flex-col items-center w-16 h-12 rounded-xl transition-colors text-red-600">
+        <div className="flex flex-col items-center justify-center w-16 h-12">
+          <span className="text-xl">🔓</span>
+          <span className="text-[10px] leading-tight">ログアウト</span>
+        </div>
+      </LogoutButton>
     </nav>
   );
 }

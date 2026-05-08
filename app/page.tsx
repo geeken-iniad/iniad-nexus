@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Calender from "./components/calendar/client";
+import BottomNav from "./components/BottomNav";
 
 type AppLink = {
   name: string;
@@ -55,7 +56,7 @@ export default function Home() {
     { name: "Timetable", url: "/timetable", color: "bg-gray-700", icon: "T" },
   ];
 
-  const [supabaseUser, setSupabaseUser] = useState<any>(null);
+  const [supabaseUser, setSupabaseUser] = useState<unknown>(null);
   const [scrollIndex, setScrollIndex] = useState(0);
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function Home() {
   const showCalendar = false; // まだ実装しないなら false のまま
 
   return (
-    <main className="min-h-screen bg-gray-900 p-6 text-white">
+    <main className="min-h-screen bg-gray-900 p-6 pb-24 text-white">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl gap-6">
         {/* 左：縦1列のアプリ一覧 */}
         <aside className="w-72 shrink-0 rounded-3xl border border-white/10 bg-gray-800/70 p-4 shadow-xl">
@@ -197,6 +198,7 @@ export default function Home() {
           {showCalendar ? <Calender user={supabaseUser} /> : null}
         </section>
       </div>
+      <BottomNav />
     </main>
   );
 }

@@ -23,12 +23,12 @@ export default function LogIn() {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4">
-          <div className="w-[600px] bg-white/90 dark:bg-gray-900/80 p-8 rounded-2xl shadow-lg flex flex-col items-center gap-4">
+          <div className="w-[1200px] bg-white/90 dark:bg-gray-900/80 p-6 rounded-2xl shadow-lg flex flex-col items-center gap-4">
             <div className="flex flex-col items-center">
               <Image src="/INIAD-nexus_icon.webp"
               alt="INIAD NEXUS ロゴ"
-              width={128}
-              height={128}
+              width={256}
+              height={256}
               className="rounded-full bg-blue-50 flex items-center justify-center text-2xl font-bold text-blue-700 shadow-md mb-4"
               priority={true}/>
               <h1 className="text-5xl md:text-6xl lg:text-7xl gradient-title">Welcome to INIAD NEXUS!</h1>
