@@ -1,10 +1,11 @@
 'use client'
 
+import { Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
-export default function LogIn() {
+function LoginContent() {
     const searchParams = useSearchParams();
     const errorParam = searchParams.get('error');
 
@@ -60,4 +61,12 @@ export default function LogIn() {
           </div>
         </div>
     )
+}
+
+export default function LogIn() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center px-4" />}> 
+      <LoginContent />
+    </Suspense>
+  )
 }
