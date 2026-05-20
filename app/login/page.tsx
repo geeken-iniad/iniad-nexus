@@ -6,10 +6,10 @@ import { useSearchParams } from "next/navigation";
 
 export default function LogIn() {
     const searchParams = useSearchParams();
-    const error = searchParams.get('error');
+    const errorParam = searchParams.get('error');
 
     const supabase = createClient();
-      const handleGoogleLogin = async () => {
+    const handleGoogleLogin = async () => {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
@@ -22,9 +22,9 @@ export default function LogIn() {
           },
         });
         if (error) console.error(error.message);
-      };
+    };
 
-    const errorMessage = error === 'unauthorized_domain'
+    const errorMessage = errorParam === 'unauthorized_domain'
       ? 'iniad.org のメールアドレスのみログインできます。'
       : null;
 
@@ -41,7 +41,7 @@ export default function LogIn() {
               <h1 className="text-5xl md:text-6xl lg:text-7xl gradient-title">Welcome to INIAD NEXUS!</h1>
             </div>
             {errorMessage ? (
-              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="w-full max-w-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mt-4">
                 {errorMessage}
               </div>
             ) : null}
