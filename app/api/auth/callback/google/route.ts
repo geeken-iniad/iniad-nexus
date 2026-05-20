@@ -7,7 +7,6 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
-
   if (!code) {
     console.error('[Auth Callback Error]: No code found in request URL.')
     return NextResponse.redirect(`${origin}/login?error=missing_code`)
@@ -45,6 +44,17 @@ export async function GET(request: Request) {
 
       const encodedError = encodeURIComponent(error.message)
       return NextResponse.redirect(`${origin}/login?error=callback_failed&message=${encodedError}`)
+    }
+
+    // ここでログインしたユーザーのメールドメインを取得し、iniad.org のみ許可する
+    const { data: { user } } = await supabase.auth.getUser()
+    const email = user?.email ?? ''
+    const emailDomain = email.split('@')[1] ?? ''
+
+    if (emailDomain !== 'iniad.org') {
+      console.warn(`[Auth] Blocked login attempt from unauthorized domain: ${emailDomain}`)
+      // 不正なドメインの場合はセッションを作成しないため、クッキーを付与していない別のリダイレクトを返す
+      return NextResponse.redirect(`${origin}/login?error=unauthorized_domain`)
     }
 
     return response

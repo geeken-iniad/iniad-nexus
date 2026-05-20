@@ -1,12 +1,16 @@
 'use client'
 
+import { Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
-export default function LogIn() {
+function LoginContent() {
+    const searchParams = useSearchParams();
+    const errorParam = searchParams.get('error');
 
     const supabase = createClient();
-      const handleGoogleLogin = async () => {
+    const handleGoogleLogin = async () => {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
@@ -19,7 +23,11 @@ export default function LogIn() {
           },
         });
         if (error) console.error(error.message);
-      };
+    };
+
+    const errorMessage = errorParam === 'unauthorized_domain'
+      ? 'iniad.org のメールアドレスのみログインできます。'
+      : null;
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4">
@@ -33,6 +41,11 @@ export default function LogIn() {
               priority={true}/>
               <h1 className="text-5xl md:text-6xl lg:text-7xl gradient-title">Welcome to INIAD NEXUS!</h1>
             </div>
+            {errorMessage ? (
+              <div className="w-full max-w-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mt-4">
+                {errorMessage}
+              </div>
+            ) : null}
             <button
               onClick={handleGoogleLogin}
               className="w-60 mt-4 px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full shadow-md flex items-center justify-center gap-2"
@@ -48,4 +61,12 @@ export default function LogIn() {
           </div>
         </div>
     )
+}
+
+export default function LogIn() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center px-4" />}> 
+      <LoginContent />
+    </Suspense>
+  )
 }
