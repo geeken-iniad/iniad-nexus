@@ -2,8 +2,11 @@
 
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 export default function LogIn() {
+    const searchParams = useSearchParams();
+    const error = searchParams.get('error');
 
     const supabase = createClient();
       const handleGoogleLogin = async () => {
@@ -21,6 +24,10 @@ export default function LogIn() {
         if (error) console.error(error.message);
       };
 
+    const errorMessage = error === 'unauthorized_domain'
+      ? 'iniad.org のメールアドレスのみログインできます。'
+      : null;
+
     return (
         <div className="min-h-screen flex items-center justify-center px-4">
           <div className="w-[1200px] bg-white/90 dark:bg-gray-900/80 p-6 rounded-2xl shadow-lg flex flex-col items-center gap-4">
@@ -33,6 +40,11 @@ export default function LogIn() {
               priority={true}/>
               <h1 className="text-5xl md:text-6xl lg:text-7xl gradient-title">Welcome to INIAD NEXUS!</h1>
             </div>
+            {errorMessage ? (
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {errorMessage}
+              </div>
+            ) : null}
             <button
               onClick={handleGoogleLogin}
               className="w-60 mt-4 px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full shadow-md flex items-center justify-center gap-2"
