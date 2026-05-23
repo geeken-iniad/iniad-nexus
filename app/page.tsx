@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Calender from "./components/calendar/client";
 import BottomNav from "./components/BottomNav";
@@ -13,6 +14,15 @@ type AppLink = {
 
 const VISIBLE_APP_COUNT = 6; // ここを変えると「同時に見せる最大数」を変更できる
 const ITEM_STEP_PX = 72; // 1アイコン分の縦移動量（高さ + 余白）
+
+type HomeUser = {
+  email?: string | null;
+  user_metadata?: {
+    full_name?: string | null;
+    name?: string | null;
+    avatar_url?: string | null;
+  } | null;
+};
 
 export default function Home() {
   const apps: AppLink[] = [
@@ -56,7 +66,7 @@ export default function Home() {
     { name: "Timetable", url: "/timetable", color: "bg-gray-700", icon: "T" },
   ];
 
-  const [supabaseUser, setSupabaseUser] = useState<unknown>(null);
+  const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
   const [scrollIndex, setScrollIndex] = useState(0);
 
   useEffect(() => {
@@ -75,105 +85,152 @@ export default function Home() {
     setScrollIndex((current) => Math.min(maxScrollIndex, current + 1));
   };
 
+  const userName =
+    supabaseUser?.user_metadata?.full_name ??
+    supabaseUser?.user_metadata?.name ??
+    supabaseUser?.email ??
+    'User';
+
+  const userAvatar = supabaseUser?.user_metadata?.avatar_url;
+
   const showCalendar = false; // まだ実装しないなら false のまま
 
   return (
     <main className="min-h-screen bg-gray-900 p-6 pb-24 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl gap-6">
-        {/* 左：縦1列のアプリ一覧 */}
-        <aside className="w-72 shrink-0 rounded-3xl border border-white/10 bg-gray-800/70 p-4 shadow-xl">
-          <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-2xl font-bold">INIAD Nexus</h1>
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-gray-300">
-              {apps.length} apps
-            </span>
+      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col gap-4">
+        <header className="flex items-center justify-between rounded-3xl border border-white/10 bg-gray-800/70 px-4 py-3 shadow-xl backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/INIAD-nexus_icon.webp"
+              alt="INIAD NEXUS ロゴ"
+              width={48}
+              height={48}
+              className="h-12 w-12 rounded-full bg-white/10 object-cover"
+              priority={true}
+            />
+            <div>
+              <p className="text-xs text-gray-400">INIAD Nexus</p>
+              <h1 className="text-lg font-bold text-white">Home</h1>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={handleScrollUp}
-              disabled={scrollIndex === 0}
-              className="rounded-2xl bg-gray-700 px-4 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="上へスクロール"
-            >
-              ⋀
-            </button>
+          <div className="flex items-center gap-3 rounded-full bg-white/5 px-3 py-2">
+            {userAvatar ? (
+              <Image
+                src={userAvatar}
+                alt={userName}
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#33C5C5] to-[#2B86B8] text-sm font-bold text-white">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="text-right">
+              <p className="text-sm font-semibold text-white">{userName}</p>
+            </div>
+          </div>
+        </header>
 
-            <div
-              className="overflow-hidden"
-              style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}
-            >
-              <div
-                className="transition-transform duration-300 ease-in-out"
-                style={{
-                  transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)`,
-                }}
+        <div className="flex min-h-[calc(100vh-14rem)] gap-4">
+          {/* 左：縦1列のアプリ一覧 */}
+          <aside className="w-72 shrink-0 rounded-3xl border border-white/10 bg-gray-800/70 p-3 shadow-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h1 className="text-2xl font-bold">INIAD Nexus</h1>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-gray-300">
+                {apps.length} apps
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={handleScrollUp}
+                disabled={scrollIndex === 0}
+                className="rounded-2xl bg-gray-700 px-4 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="上へスクロール"
               >
-                <div className="flex flex-col gap-4">
-                  {apps.map((app) => (
-                    <a
-                      key={app.name}
-                      href={app.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={app.name}
-                      className={`${app.color} flex h-14 items-center gap-3 rounded-2xl px-4 shadow-lg transition-opacity hover:opacity-90`}
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
-                        {app.icon}
-                      </span>
-                      <span className="truncate text-sm font-semibold">
-                        {app.name}
-                      </span>
-                    </a>
-                  ))}
+                ⋀
+              </button>
+
+              <div
+                className="overflow-hidden"
+                style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}
+              >
+                <div
+                  className="transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)`,
+                  }}
+                >
+                  <div className="flex flex-col gap-4">
+                    {apps.map((app) => (
+                      <a
+                        key={app.name}
+                        href={app.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={app.name}
+                        className={`${app.color} flex h-14 items-center gap-3 rounded-2xl px-4 shadow-lg transition-opacity hover:opacity-90`}
+                      >
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
+                          {app.icon}
+                        </span>
+                        <span className="truncate text-sm font-semibold">
+                          {app.name}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={handleScrollDown}
-              disabled={scrollIndex === maxScrollIndex}
-              className="rounded-2xl bg-gray-700 px-4 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="下へスクロール"
-            >
-              ⋁
-            </button>
-          </div>
-        </aside>
-
-        {/* 右：時間割エリア */}
-        <section className="flex-1 rounded-3xl border border-white/10 bg-gray-800/70 p-6 shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">右側エリア</p>
-              <h2 className="text-2xl font-bold">時間割</h2>
+              <button
+                type="button"
+                onClick={handleScrollDown}
+                disabled={scrollIndex === maxScrollIndex}
+                className="rounded-2xl bg-gray-700 px-4 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="下へスクロール"
+              >
+                ⋁
+              </button>
             </div>
-            <span className="rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-300">
-              未実装
-            </span>
-          </div>
+          </aside>
+
+          {/* 右：時間割エリア */}
+          <section className="flex-1 rounded-3xl border border-white/10 bg-gray-800/70 p-5 shadow-xl">
+            <div className="mb-2 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-gray-400">
+                  右側エリア
+                </p>
+                <h2 className="text-xl font-bold leading-tight">時間割</h2>
+              </div>
+              <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-xs text-amber-300">
+                未実装
+              </span>
+            </div>
 
           {/* 時間割の仮レイアウト */}
-          <div className="grid h-[calc(100%-4rem)] grid-cols-6 gap-3">
-            <div className="rounded-xl bg-white/5 p-3 text-center text-sm font-bold">
+          <div className="grid h-[calc(100%-2.5rem)] grid-cols-6 gap-2">
+            <div className="rounded-xl bg-white/5 p-2.5 text-center text-xs font-bold">
               時限
             </div>
-            <div className="rounded-xl bg-white/5 p-3 text-center text-sm font-bold">
+            <div className="rounded-xl bg-white/5 p-2.5 text-center text-xs font-bold">
               月
             </div>
-            <div className="rounded-xl bg-white/5 p-3 text-center text-sm font-bold">
+            <div className="rounded-xl bg-white/5 p-2.5 text-center text-xs font-bold">
               火
             </div>
-            <div className="rounded-xl bg-white/5 p-3 text-center text-sm font-bold">
+            <div className="rounded-xl bg-white/5 p-2.5 text-center text-xs font-bold">
               水
             </div>
-            <div className="rounded-xl bg-white/5 p-3 text-center text-sm font-bold">
+            <div className="rounded-xl bg-white/5 p-2.5 text-center text-xs font-bold">
               木
             </div>
-            <div className="rounded-xl bg-white/5 p-3 text-center text-sm font-bold">
+            <div className="rounded-xl bg-white/5 p-2.5 text-center text-xs font-bold">
               金
             </div>
 
@@ -194,9 +251,10 @@ export default function Home() {
             ))}
           </div>
 
-          {/* まだ使わない場合は showCalendar=false のままでOK */}
-          {showCalendar ? <Calender user={supabaseUser} /> : null}
-        </section>
+            {/* まだ使わない場合は showCalendar=false のままでOK */}
+            {showCalendar ? <Calender user={supabaseUser} /> : null}
+          </section>
+        </div>
       </div>
       <BottomNav />
     </main>
