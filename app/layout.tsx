@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} antialiased`}>
         <Providers>
-          <main className="pb-20">
+          <main>
             {children}
           </main>
         </Providers>
