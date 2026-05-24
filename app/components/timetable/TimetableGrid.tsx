@@ -17,7 +17,7 @@ interface ModalState {
   initialCell?: { day_of_week: number; period: number; semester: SemesterType }
 }
 
-/** 時間帯ラベル（大学によって異なる場合は適宜変更） */
+/** 時間帯ラベル*/
 const PERIOD_TIMES: Record<number, string> = {
   1: '09:00',
   2: '10:40',
