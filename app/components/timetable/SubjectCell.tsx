@@ -14,7 +14,7 @@ export default function SubjectCell({ entry, onClick }: Props) {
     <button
       onClick={onClick}
       className={[
-        'group relative w-full h-full min-h-[5.5rem] rounded-xl border transition-all duration-200',
+        'group relative w-full h-full rounded-xl border transition-all duration-200',
         'flex flex-col gap-1 p-2 text-left overflow-hidden',
         entry
           ? 'border-transparent shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.99]'
