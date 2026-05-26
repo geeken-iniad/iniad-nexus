@@ -1,4 +1,4 @@
-import TimetableGrid from '@/components/timetable/TimetableGrid'
+import TimetableGrid from '@/app/components/timetable/TimetableGrid'
 
 export const metadata = {
   title: 'INIAD Nexas',
