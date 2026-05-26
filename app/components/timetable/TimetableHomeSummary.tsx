@@ -1,6 +1,3 @@
-
-raw
-Timetablehomesummary · TSX
 'use client'
  
 import Link from 'next/link'
@@ -45,7 +42,7 @@ export default function TimetableHomeSummary() {
       {/* サブヘッダー */}
       <div className="flex items-center justify-between shrink-0">
         <span className="text-xs text-gray-400">
-          {year}年度 {semester === 'spring' ? '🌸 春学期' : '🍂 秋学期'}
+          {year}年度 {semester === 'spring' ? '春学期' : '秋学期'}
         </span>
         <Link
           href="/timetable"
