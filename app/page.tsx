@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Calender from "./components/calendar/client";
 import BottomNav from "./components/BottomNav";
-
+import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 type AppLink = {
   name: string;
   url: string;

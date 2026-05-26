@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { SemesterType, TimetableEntry, TimetableInsert } from '@/types/timetable'
 import { buildYearRange, currentAcademicYear, DAYS, gradeLabel, PERIODS } from '@/types/timetable'
 import {
@@ -27,16 +27,33 @@ const PERIOD_TIMES: Record<number, string> = {
   6: '18:15-19:45',
 }
 
-export default function TimetableGrid() {
-  const [academicYear,    setAcademicYear]    = useState<number>(currentAcademicYear())
-  const [semester,        setSemester]        = useState<SemesterType>('spring')
-  const [enrollmentYear,  setEnrollmentYear]  = useState<number | null>(null)
-  const [entries,         setEntries]         = useState<TimetableEntry[]>([])
-  const [loading,         setLoading]         = useState(true)
-  const [error,           setError]           = useState<string | null>(null)
-  const [modalState,      setModalState]      = useState<ModalState | null>(null)
+interface YearSemesterOption {
+  academic_year: number
+  semester: SemesterType
+  isAfterGrad: boolean
+}
 
-  // 入学年度を取得（enrollment_year が profiles にない場合は null → 推定値で代替）
+function buildOptions(yearRange: number[], enrollmentYear: number): YearSemesterOption[] {
+  const options: YearSemesterOption[] = []
+  for (const year of yearRange) {
+    for (const sem of ['spring', 'fall'] as SemesterType[]) {
+      options.push({ academic_year: year, semester: sem, isAfterGrad: year >= enrollmentYear + 4 })
+    }
+  }
+  return options
+}
+
+export default function TimetableGrid() {
+  const [academicYear,   setAcademicYear]   = useState<number>(currentAcademicYear())
+  const [semester,       setSemester]       = useState<SemesterType>('spring')
+  const [enrollmentYear, setEnrollmentYear] = useState<number | null>(null)
+  const [entries,        setEntries]        = useState<TimetableEntry[]>([])
+  const [loading,        setLoading]        = useState(true)
+  const [error,          setError]          = useState<string | null>(null)
+  const [modalState,     setModalState]     = useState<ModalState | null>(null)
+  const [dropdownOpen,   setDropdownOpen]   = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     fetchEnrollmentYear().then(setEnrollmentYear).catch(() => setEnrollmentYear(null))
   }, [])
@@ -44,9 +61,20 @@ export default function TimetableGrid() {
   const effectiveEnrollmentYear = enrollmentYear ?? currentAcademicYear() - 3
   const yearRange = buildYearRange(enrollmentYear)
 
-  // -----------------------------------------------------------------
+  const selectedLabel = `${academicYear}年度 ${semester === 'spring' ? '春学期' : '秋学期'}`
+
+  // ドロップダウン外クリックで閉じる
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
   // データ取得
-  // -----------------------------------------------------------------
   const load = useCallback(async (year: number, sem: SemesterType) => {
     setLoading(true)
     setError(null)
@@ -61,30 +89,23 @@ export default function TimetableGrid() {
 
   useEffect(() => { load(academicYear, semester) }, [academicYear, semester, load])
 
-  // -----------------------------------------------------------------
-  // 年度変更（卒業後の確認ポップアップ付き）
-  // -----------------------------------------------------------------
-  const handleYearChange = (year: number) => {
-    const isAfterGraduation = year >= effectiveEnrollmentYear + 4
-    if (isAfterGraduation) {
-      const label = gradeLabel(year, effectiveEnrollmentYear)
-      if (!confirm(`${label}の時間割を表示・編集しますか？\n（卒業後の年度です）`)) return
+  // 年度・学期の選択
+  const handleSelect = (opt: YearSemesterOption) => {
+    if (opt.isAfterGrad) {
+      if (!confirm(`${opt.academic_year}年度は卒業後の年度です。表示しますか？`)) return
     }
-    setAcademicYear(year)
+    setAcademicYear(opt.academic_year)
+    setSemester(opt.semester)
+    setDropdownOpen(false)
   }
 
-  // -----------------------------------------------------------------
-  // セルマップ
-  // -----------------------------------------------------------------
+  // セルマップ・CRUD
   const entryMap = useMemo(() => {
     const map = new Map<string, TimetableEntry>()
     for (const e of entries) map.set(`${e.day_of_week}-${e.period}`, e)
     return map
   }, [entries])
 
-  // -----------------------------------------------------------------
-  // CRUD
-  // -----------------------------------------------------------------
   const handleSave = async (data: TimetableInsert) => {
     if (modalState?.entry) {
       const updated = await updateTimetableEntry(modalState.entry.id, data)
@@ -109,69 +130,71 @@ export default function TimetableGrid() {
     )
   }
 
-  // 今日の曜日ハイライト
   const todayDow = (() => {
     const d = new Date().getDay()
     return d >= 1 && d <= 5 ? d - 1 : -1
   })()
 
-  // -----------------------------------------------------------------
-  // レンダリング
-  // -----------------------------------------------------------------
   return (
     <div className="flex flex-col gap-3 h-full">
 
-      {/* ── コントロール行 ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-
-        {/* 年度セレクター */}
-        <div className="flex gap-1 p-1 bg-slate-100 rounded-xl overflow-x-auto shrink-0 scrollbar-none">
-          {yearRange.map((year) => {
-            const isAfterGrad = year >= effectiveEnrollmentYear + 4
-            const isSelected  = year === academicYear
-            return (
-              <button
-                key={year}
-                onClick={() => handleYearChange(year)}
-                className={[
-                  'px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 shrink-0',
-                  isSelected
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : isAfterGrad
-                      ? 'text-slate-400 hover:text-slate-600'
-                      : 'text-slate-500 hover:text-slate-700',
-                ].join(' ')}
-              >
-                {year}
-                {/* 卒業後の年度には小さいバッジ */}
-                {isAfterGrad && (
-                  <span className="ml-1 text-[0.55rem] text-slate-400">卒後</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* 学期タブ */}
-        <div className="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit shrink-0">
-          {(['spring', 'fall'] as const).map((sem) => (
-            <button
-              key={sem}
-              onClick={() => setSemester(sem)}
-              className={[
-                'px-4 py-1 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap',
-                semester === sem
-                  ? 'bg-white text-slate-800 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700',
-              ].join(' ')}
+      {/* セレクター行 */}
+      <div className="flex items-center gap-2">
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen((v) => !v)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-slate-700 transition-colors"
+          >
+            <span>{selectedLabel}</span>
+            <svg
+              className={`w-3 h-3 text-slate-400 transition-transform duration-150 ${dropdownOpen ? 'rotate-180' : ''}`}
+              viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2"
             >
-              {sem === 'spring' ? '🌸 春学期' : '🍂 秋学期'}
-            </button>
-          ))}
+              <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 z-30 bg-white border border-slate-100 rounded-2xl shadow-lg overflow-hidden min-w-[200px]">
+              {yearRange.map((year) => (
+                <div key={year}>
+                  {/* 年度グループヘッダー */}
+                  <div className="px-3 pt-2.5 pb-1 text-[0.65rem] font-bold text-slate-400 tracking-wide border-t border-slate-50 first:border-t-0">
+                    {gradeLabel(year, effectiveEnrollmentYear)}
+                  </div>
+                  {/* 春・秋 */}
+                  {(['spring', 'fall'] as SemesterType[]).map((sem) => {
+                    const isSelected  = year === academicYear && sem === semester
+                    const isAfterGrad = year >= effectiveEnrollmentYear + 4
+                    return (
+                      <button
+                        key={sem}
+                        onClick={() => handleSelect({ academic_year: year, semester: sem, isAfterGrad })}
+                        className={[
+                          'w-full text-left px-5 py-2 text-xs font-medium transition-colors flex items-center justify-between',
+                          isSelected
+                            ? 'bg-blue-50 text-blue-600 font-semibold'
+                            : isAfterGrad
+                              ? 'text-slate-400 hover:bg-slate-50'
+                              : 'text-slate-700 hover:bg-slate-50',
+                        ].join(' ')}
+                      >
+                        <span>
+                          {sem === 'spring' ? '春学期' : '秋学期'}
+                          {isAfterGrad && <span className="ml-1.5 text-[0.6rem] text-slate-400">卒後</span>}
+                        </span>
+                        {isSelected && <span className="text-blue-400 text-[0.7rem]">✓</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* 選択中のラベル（年次表示） */}
-        <span className="text-xs text-slate-400 sm:ml-auto">
+        {/* 年次ラベル */}
+        <span className="text-xs text-slate-400 ml-auto">
           {gradeLabel(academicYear, effectiveEnrollmentYear)}
         </span>
       </div>
@@ -180,9 +203,7 @@ export default function TimetableGrid() {
       {error && (
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           {error}
-          <button onClick={() => load(academicYear, semester)} className="ml-3 underline">
-            再読み込み
-          </button>
+          <button onClick={() => load(academicYear, semester)} className="ml-3 underline">再読み込み</button>
         </div>
       )}
 
