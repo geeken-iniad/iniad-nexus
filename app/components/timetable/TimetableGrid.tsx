@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { SemesterType, TimetableEntry, TimetableInsert } from '@/types/timetable'
-import { DAYS, PERIODS } from '@/types/timetable'
+import { buildYearRange, currentAcademicYear, DAYS, gradeLabel, PERIODS } from '@/types/timetable'
 import {
   addTimetableEntry,
   deleteTimetableEntry,
+  fetchEnrollmentYear,
   fetchTimetable,
   updateTimetableEntry,
 } from '@/utils/supabase/timetable'
@@ -14,10 +15,9 @@ import SubjectModal from './SubjectModal'
 
 interface ModalState {
   entry?: TimetableEntry
-  initialCell?: { day_of_week: number; period: number; semester: SemesterType }
+  initialCell?: { day_of_week: number; period: number; semester: SemesterType; academic_year: number }
 }
 
-/** 時間帯ラベル */
 const PERIOD_TIMES: Record<number, string> = {
   1: '09:00-10:30',
   2: '10:40-12:10',
@@ -28,20 +28,30 @@ const PERIOD_TIMES: Record<number, string> = {
 }
 
 export default function TimetableGrid() {
-  const [semester,   setSemester]   = useState<SemesterType>('spring')
-  const [entries,    setEntries]    = useState<TimetableEntry[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [error,      setError]      = useState<string | null>(null)
-  const [modalState, setModalState] = useState<ModalState | null>(null)
+  const [academicYear,    setAcademicYear]    = useState<number>(currentAcademicYear())
+  const [semester,        setSemester]        = useState<SemesterType>('spring')
+  const [enrollmentYear,  setEnrollmentYear]  = useState<number | null>(null)
+  const [entries,         setEntries]         = useState<TimetableEntry[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [error,           setError]           = useState<string | null>(null)
+  const [modalState,      setModalState]      = useState<ModalState | null>(null)
+
+  // 入学年度を取得（enrollment_year が profiles にない場合は null → 推定値で代替）
+  useEffect(() => {
+    fetchEnrollmentYear().then(setEnrollmentYear).catch(() => setEnrollmentYear(null))
+  }, [])
+
+  const effectiveEnrollmentYear = enrollmentYear ?? currentAcademicYear() - 3
+  const yearRange = buildYearRange(enrollmentYear)
 
   // -----------------------------------------------------------------
   // データ取得
   // -----------------------------------------------------------------
-  const load = useCallback(async (sem: SemesterType) => {
+  const load = useCallback(async (year: number, sem: SemesterType) => {
     setLoading(true)
     setError(null)
     try {
-      setEntries(await fetchTimetable(sem))
+      setEntries(await fetchTimetable(year, sem))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'データの取得に失敗しました')
     } finally {
@@ -49,10 +59,22 @@ export default function TimetableGrid() {
     }
   }, [])
 
-  useEffect(() => { load(semester) }, [semester, load])
+  useEffect(() => { load(academicYear, semester) }, [academicYear, semester, load])
 
   // -----------------------------------------------------------------
-  // セルへのエントリマップ
+  // 年度変更（卒業後の確認ポップアップ付き）
+  // -----------------------------------------------------------------
+  const handleYearChange = (year: number) => {
+    const isAfterGraduation = year >= effectiveEnrollmentYear + 4
+    if (isAfterGraduation) {
+      const label = gradeLabel(year, effectiveEnrollmentYear)
+      if (!confirm(`${label}の時間割を表示・編集しますか？\n（卒業後の年度です）`)) return
+    }
+    setAcademicYear(year)
+  }
+
+  // -----------------------------------------------------------------
+  // セルマップ
   // -----------------------------------------------------------------
   const entryMap = useMemo(() => {
     const map = new Map<string, TimetableEntry>()
@@ -61,15 +83,13 @@ export default function TimetableGrid() {
   }, [entries])
 
   // -----------------------------------------------------------------
-  // CRUD ハンドラ
+  // CRUD
   // -----------------------------------------------------------------
   const handleSave = async (data: TimetableInsert) => {
     if (modalState?.entry) {
-      // 更新
       const updated = await updateTimetableEntry(modalState.entry.id, data)
       setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)))
     } else {
-      // 追加
       const added = await addTimetableEntry(data)
       setEntries((prev) => [...prev, added])
     }
@@ -81,58 +101,95 @@ export default function TimetableGrid() {
     setEntries((prev) => prev.filter((e) => e.id !== modalState.entry!.id))
   }
 
-  // -----------------------------------------------------------------
-  // セルクリック
-  // -----------------------------------------------------------------
   const openCell = (day_of_week: number, period: number) => {
     const entry = entryMap.get(`${day_of_week}-${period}`)
-    setModalState(entry ? { entry } : { initialCell: { day_of_week, period, semester } })
+    setModalState(entry
+      ? { entry }
+      : { initialCell: { day_of_week, period, semester, academic_year: academicYear } }
+    )
   }
 
-  // -----------------------------------------------------------------
-  // 現在の曜日ハイライト
-  // -----------------------------------------------------------------
+  // 今日の曜日ハイライト
   const todayDow = (() => {
-    const d = new Date().getDay() // 0=日〜6=土
-    return d >= 1 && d <= 5 ? d - 1 : -1  // 月=0〜金=4
+    const d = new Date().getDay()
+    return d >= 1 && d <= 5 ? d - 1 : -1
   })()
 
   // -----------------------------------------------------------------
   // レンダリング
   // -----------------------------------------------------------------
   return (
-    <div className="flex flex-col gap-4">
-      {/* セメスタータブ */}
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit">
-        {(['spring', 'fall'] as const).map((sem) => (
-          <button
-            key={sem}
-            onClick={() => setSemester(sem)}
-            className={[
-              'px-5 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150',
-              semester === sem
-                ? 'bg-white text-slate-800 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700',
-            ].join(' ')}
-          >
-            {sem === 'spring' ? '🌸 春学期' : '🍂 秋学期'}
-          </button>
-        ))}
+    <div className="flex flex-col gap-3 h-full">
+
+      {/* ── コントロール行 ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+
+        {/* 年度セレクター */}
+        <div className="flex gap-1 p-1 bg-slate-100 rounded-xl overflow-x-auto shrink-0 scrollbar-none">
+          {yearRange.map((year) => {
+            const isAfterGrad = year >= effectiveEnrollmentYear + 4
+            const isSelected  = year === academicYear
+            return (
+              <button
+                key={year}
+                onClick={() => handleYearChange(year)}
+                className={[
+                  'px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 shrink-0',
+                  isSelected
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : isAfterGrad
+                      ? 'text-slate-400 hover:text-slate-600'
+                      : 'text-slate-500 hover:text-slate-700',
+                ].join(' ')}
+              >
+                {year}
+                {/* 卒業後の年度には小さいバッジ */}
+                {isAfterGrad && (
+                  <span className="ml-1 text-[0.55rem] text-slate-400">卒後</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* 学期タブ */}
+        <div className="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit shrink-0">
+          {(['spring', 'fall'] as const).map((sem) => (
+            <button
+              key={sem}
+              onClick={() => setSemester(sem)}
+              className={[
+                'px-4 py-1 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap',
+                semester === sem
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              ].join(' ')}
+            >
+              {sem === 'spring' ? '🌸 春学期' : '🍂 秋学期'}
+            </button>
+          ))}
+        </div>
+
+        {/* 選択中のラベル（年次表示） */}
+        <span className="text-xs text-slate-400 sm:ml-auto">
+          {gradeLabel(academicYear, effectiveEnrollmentYear)}
+        </span>
       </div>
 
-      {/* エラー表示 */}
+      {/* エラー */}
       {error && (
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           {error}
-          <button onClick={() => load(semester)} className="ml-3 underline">再読み込み</button>
+          <button onClick={() => load(academicYear, semester)} className="ml-3 underline">
+            再読み込み
+          </button>
         </div>
       )}
 
-      {/* グリッド全体を囲うコンポーネント */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm bg-white h-full">
+      {/* グリッド */}
+      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm bg-white flex-1 min-h-0">
         <table className="w-full border-collapse table-fixed min-w-[340px] sm:min-w-[560px] h-full">
           <colgroup>
-            {/* 時限列の幅をスマホでは限界まで狭く(2.2rem)します */}
             <col className="w-[2.2rem] sm:w-[3.5rem]" />
             {DAYS.map((_, i) => <col key={i} />)}
           </colgroup>
@@ -157,16 +214,13 @@ export default function TimetableGrid() {
           </thead>
           <tbody>
             {PERIODS.map((period) => (
-              <tr key={period} className="group/row">
-                {/* 時限ラベルのフォントサイズを可変に */}
+              <tr key={period}>
                 <td className="border-b border-slate-100 py-1 px-0.5 text-center align-top">
                   <span className="block text-[10px] sm:text-xs font-bold text-slate-600">{period}</span>
-                  <span className="block text-[0.55rem] sm:text-[0.6rem] text-slate-300 leading-none mt-0.5">
+                  <span className="hidden sm:block text-[0.55rem] sm:text-[0.6rem] text-slate-300 leading-none mt-0.5">
                     {PERIOD_TIMES[period]}
                   </span>
                 </td>
-
-                {/* 各曜日のセル（パディングをスマホ用に極小化） */}
                 {DAYS.map((_, day) => (
                   <td
                     key={day}

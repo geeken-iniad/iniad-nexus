@@ -3,6 +3,7 @@ export type SemesterType = 'spring' | 'fall'
 export interface TimetableEntry {
   id: string
   user_id: string
+  academic_year: number 
   semester: SemesterType
   day_of_week: number   // 0=月 〜 4=金
   period: number        // 1〜6
@@ -37,3 +38,24 @@ export const SUBJECT_COLORS = [
   { label: 'ライム',   value: '#a3e635' },
   { label: 'シアン',   value: '#22d3ee' },
 ] as const
+
+export function currentAcademicYear(): number {
+  const now = new Date()
+  return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1
+}
+
+export function buildYearRange(enrollmentYear?: number | null): number[] {
+  const current = currentAcademicYear()
+  const start   = enrollmentYear ?? current - 3
+  // 現在年度の翌年まで選択可能にする
+  const end     = current + 1
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+}
+
+export function gradeLabel(year: number, enrollmentYear: number): string {
+  const grade = year - enrollmentYear + 1
+  if (grade < 1)  return `${year}年度`
+  if (grade <= 4) return `${year}年度（${grade}年次）`
+  return `${year}年度（卒業後${grade - 4}年）`
+}
+ 
