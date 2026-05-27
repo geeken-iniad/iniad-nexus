@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import BottomNav from "./components/BottomNav";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 
 type AppLink = {
@@ -178,7 +177,6 @@ export default function Home() {
 
         </div>
       </div>
-      <BottomNav />
     </main>
   );
 }
