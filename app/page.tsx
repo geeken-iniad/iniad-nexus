@@ -56,27 +56,27 @@ export default function Home() {
   const userAvatar = supabaseUser?.user_metadata?.avatar_url;
 
   return (
-    <main className="min-h-screen bg-gray-900 p-6 pb-24 text-white">
+    <main className="min-h-screen bg-gradient-to-br from-[#EBF4FA] via-[#D0E2FF] to-[#C1DBFE] p-6 pb-24 text-gray-800">
+      {/* 背景色ここで変更 */}
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col gap-4">
-
-        {/* ヘッダー */}
-        <header className="flex items-center justify-between rounded-3xl border border-white/10 bg-gray-800/70 px-4 py-3 shadow-xl backdrop-blur-sm">
+        {/* ヘッダー ,shadow-xl を一度削除*/}
+        <header className="flex items-center justify-between rounded-3xl border border-white/60 bg-white/60 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <Image
               src="/INIAD-nexus_icon.webp"
               alt="INIAD NEXUS ロゴ"
               width={48}
               height={48}
-              className="h-12 w-12 rounded-full bg-white/10 object-cover"
+              className="h-12 w-12 rounded-full bg-white/ object-coverborder border-gray-100"
               priority
             />
             <div>
-              <p className="text-xs text-gray-400">INIAD Nexus</p>
-              <h1 className="text-lg font-bold text-white">Home</h1>
+              <p className="text-xs text-gray-500">INIAD Nexus</p>
+              <h1 className="text-lg font-bold text-gray-800">Home</h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-full bg-white/5 px-3 py-2">
+          <div className="flex items-center gap-3 rounded-full bg-gray-500/10 px-3 py-2">
             {userAvatar ? (
               <Image
                 src={userAvatar}
@@ -90,7 +90,7 @@ export default function Home() {
                 {userName.charAt(0).toUpperCase()}
               </div>
             )}
-            <p className="text-sm font-semibold text-white">{userName}</p>
+            <p className="text-sm font-semibold text-gray-800">{userName}</p>
           </div>
         </header>
 
@@ -98,15 +98,15 @@ export default function Home() {
         <div className="flex min-h-[calc(100vh-14rem)] gap-4">
 
           {/* 左：アプリ一覧 */}
-          <aside className="w-28 shrink-0 rounded-3xl border border-white/10 bg-gray-800/70 p-3 shadow-xl flex flex-col items-center">
+          <aside className="w-28 shrink-0 rounded-3xl border border-white/60 bg-white/60 p-3 flex flex-col items-center">
             
             <div className="flex w-full flex-col gap-2.5">
-              {/* 上へスクロールボタン */}
+              {/* 上へスクロールボタン（色を明るく変更） */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
                 disabled={scrollIndex === 0}
-                className="flex w-full justify-center rounded-2xl bg-gray-700 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="上へスクロール"
               >
                 ⋀
@@ -126,8 +126,8 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title={app.name}
-                        // ここが正方形にするクラスです
-                        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white shadow-md transition-transform hover:scale-105 hover:shadow-lg"
+                        // ここが正方形にするクラスです,shadow-md hover:shadow-lgを消してホバー時に少し大きくなるように変更
+                        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white transition-transform hover:scale-105"
                       >
                         {/* iconImageが設定されていれば画像、なければ頭文字 */}
                         {app.icon ? (
@@ -149,12 +149,12 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 下へスクロールボタン */}
+              {/* 下へスクロールボタン(色変更) */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
                 disabled={scrollIndex === maxScrollIndex}
-                className="flex w-full justify-center rounded-2xl bg-gray-700 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold text-gray-400hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="下へスクロール"
               >
                 ⋁
@@ -163,10 +163,10 @@ export default function Home() {
           </aside>
 
           {/* 右：時間割（閲覧のみ） */}
-          <section className="flex flex-col flex-1 min-h-0 rounded-3xl border border-white/10 bg-gray-800/70 p-5 shadow-xl">
+          <section className="flex flex-col flex-1 min-h-0 rounded-3xl border border-white/60 bg-white/60 p-5 text-gray-800">
             <div className="mb-2 shrink-0">
-              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">Schedule</p>
-              <h2 className="text-xl font-bold leading-tight">時間割</h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Schedule</p>
+              <h2 className="text-xl font-bold leading-tight text-gray-800">時間割</h2>
             </div>
             <div className="flex-1 min-h-0">
               <TimetableHomeSummary />
