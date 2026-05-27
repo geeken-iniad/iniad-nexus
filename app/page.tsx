@@ -34,6 +34,9 @@ export default function Home() {
     { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "/img/gemini-color.png" },
     { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-white-monoblossom.png" },
     { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/img/Timetable.jpg" },
+    { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/img/jimuka.jpg" },
+    { name: "赤羽台図書館",        url: "https://sites.google.com/toyo.jp/akabanelib",   color: "bg-yellow-600", icon: "/img/toshokan.jpg" },
+  
   ];
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
