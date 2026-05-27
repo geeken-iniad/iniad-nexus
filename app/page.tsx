@@ -13,7 +13,7 @@ type AppLink = {
 };
 
 const VISIBLE_APP_COUNT = 6;
-const ITEM_STEP_PX = 72;
+const ITEM_STEP_PX = 80;
 
 type HomeUser = {
   email?: string | null;
@@ -26,14 +26,17 @@ type HomeUser = {
 
 export default function Home() {
   const apps: AppLink[] = [
-    { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "A" },
-    { name: "Toyo-net G",   url: "https://g-sys.toyo.ac.jp/portal/", color: "bg-green-600",  icon: "G" },
-    { name: "INIAD MOOCS",  url: "https://moocs.iniad.org/",          color: "bg-purple-600", icon: "M" },
-    { name: "Slack",        url: "slack://open",                      color: "bg-red-500",    icon: "S" },
-    { name: "Classroom",    url: "https://classroom.google.com/",     color: "bg-amber-500",  icon: "C" },
-    { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "G" },
-    { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "C" },
-    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "T" },
+    { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "/img/ACE.jpg" },
+    { name: "Toyo-net G",   url: "https://g-sys.toyo.ac.jp/portal/", color: "bg-green-600",  icon: "/img/G.jpg" },
+    { name: "INIAD MOOCS",  url: "https://moocs.iniad.org/",          color: "bg-purple-600", icon: "/img/INIAD.jpg" },
+    { name: "Slack",        url: "slack://open",                      color: "bg-red-500",    icon: "/img/slack.png" },
+    { name: "Classroom",    url: "https://classroom.google.com/",     color: "bg-amber-500",  icon: "/img/Classroom.jpg" },
+    { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "/img/gemini-color.png" },
+    { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-white-monoblossom.png" },
+    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/img/Timetable.jpg" },
+    { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/img/jimuka.jpg" },
+    { name: "赤羽台図書館",        url: "https://sites.google.com/toyo.jp/akabanelib",   color: "bg-yellow-600", icon: "/img/toshokan.jpg" },
+  
   ];
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
@@ -56,27 +59,27 @@ export default function Home() {
   const userAvatar = supabaseUser?.user_metadata?.avatar_url;
 
   return (
-    <main className="min-h-screen bg-gray-900 p-6 pb-24 text-white">
+    <main className="min-h-screen bg-gradient-to-br from-[#EBF4FA] via-[#D0E2FF] to-[#C1DBFE] p-6 pb-24 text-gray-800">
+      {/* 背景色ここで変更 */}
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col gap-4">
-
-        {/* ヘッダー */}
-        <header className="flex items-center justify-between rounded-3xl border border-white/10 bg-gray-800/70 px-4 py-3 shadow-xl backdrop-blur-sm">
+        {/* ヘッダー ,shadow-xl を一度削除*/}
+        <header className="flex items-center justify-between rounded-3xl border border-white/60 bg-white/60 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <Image
               src="/INIAD-nexus_icon.webp"
               alt="INIAD NEXUS ロゴ"
               width={48}
               height={48}
-              className="h-12 w-12 rounded-full bg-white/10 object-cover"
+              className="h-12 w-12 rounded-full bg-white/ object-coverborder border-gray-100"
               priority
             />
             <div>
-              <p className="text-xs text-gray-400">INIAD Nexus</p>
-              <h1 className="text-lg font-bold text-white">Home</h1>
+              <p className="text-xs text-gray-500">INIAD Nexus</p>
+              <h1 className="text-lg font-bold text-gray-800">Home</h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-full bg-white/5 px-3 py-2">
+          <div className="flex items-center gap-3 rounded-full bg-gray-500/10 px-3 py-2">
             {userAvatar ? (
               <Image
                 src={userAvatar}
@@ -90,7 +93,7 @@ export default function Home() {
                 {userName.charAt(0).toUpperCase()}
               </div>
             )}
-            <p className="text-sm font-semibold text-white">{userName}</p>
+            <p className="text-sm font-semibold text-gray-800">{userName}</p>
           </div>
         </header>
 
@@ -98,26 +101,24 @@ export default function Home() {
         <div className="flex min-h-[calc(100vh-14rem)] gap-4">
 
           {/* 左：アプリ一覧 */}
-          <aside className="w-72 shrink-0 rounded-3xl border border-white/10 bg-gray-800/70 p-3 shadow-xl">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">INIAD Nexus</h2>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-gray-300">
-                {apps.length} apps
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-2.5">
+          <aside className="w-28 shrink-0 rounded-3xl border border-white/60 bg-white/60 p-3 flex flex-col items-center">
+            
+            <div className="flex w-full flex-col gap-2.5">
+              {/* 上へスクロールボタン（色を明るく変更） */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
                 disabled={scrollIndex === 0}
-                className="rounded-2xl bg-gray-700 px-4 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="上へスクロール"
-              >⋀</button>
+              >
+                ⋀
+              </button>
 
-              <div className="overflow-hidden" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
+              {/* スクロールするアイコン領域 */}
+              <div className="overflow-hidden w-full flex justify-center" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
                 <div
-                  className="transition-transform duration-300 ease-in-out"
+                  className="transition-transform duration-300 ease-in-out flex flex-col items-center"
                   style={{ transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)` }}
                 >
                   <div className="flex flex-col gap-4">
@@ -128,33 +129,47 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title={app.name}
-                        className={`${app.color} flex h-14 items-center gap-3 rounded-2xl px-4 shadow-lg transition-opacity hover:opacity-90`}
+                        // ここが正方形にするクラスです,shadow-md hover:shadow-lgを消してホバー時に少し大きくなるように変更
+                        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white transition-transform hover:scale-105"
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
-                          {app.icon}
-                        </span>
-                        <span className="truncate text-sm font-semibold">{app.name}</span>
+                        {/* iconImageが設定されていれば画像、なければ頭文字 */}
+                        {app.icon ? (
+                          <Image
+                            src={app.icon}
+                            alt={app.name}
+                            width={40}
+                            height={40}
+                            className="h-10 w-10 object-contain"
+                          />
+                        ) : (
+                          <span className="text-xl font-bold text-gray-800">
+                            {app.name.charAt(0)}
+                          </span>
+                        )}
                       </a>
                     ))}
                   </div>
                 </div>
               </div>
 
+              {/* 下へスクロールボタン(色変更) */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
                 disabled={scrollIndex === maxScrollIndex}
-                className="rounded-2xl bg-gray-700 px-4 py-2 text-lg font-bold hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold text-gray-400hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="下へスクロール"
-              >⋁</button>
+              >
+                ⋁
+              </button>
             </div>
           </aside>
 
           {/* 右：時間割（閲覧のみ） */}
-          <section className="flex flex-col flex-1 min-h-0 rounded-3xl border border-white/10 bg-gray-800/70 p-5 shadow-xl">
+          <section className="flex flex-col flex-1 min-h-0 rounded-3xl border border-white/60 bg-white/60 p-5 text-gray-800">
             <div className="mb-2 shrink-0">
-              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">Schedule</p>
-              <h2 className="text-xl font-bold leading-tight">時間割</h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Schedule</p>
+              <h2 className="text-xl font-bold leading-tight text-gray-800">時間割</h2>
             </div>
             <div className="flex-1 min-h-0">
               <TimetableHomeSummary />
