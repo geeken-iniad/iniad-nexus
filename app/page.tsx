@@ -96,75 +96,80 @@ export default function Home() {
         </header>
 
         {/* メインエリア */}
-        <div className="flex min-h-[calc(100vh-14rem)] gap-4">
+        {/* flex-col（縦）と md:flex-row（PCは横）を追加 */}
+        <div className="flex flex-col md:flex-row min-h-[calc(100vh-14rem)] gap-4">
 
           {/* 左：アプリ一覧 */}
-          <aside className="w-28 shrink-0 rounded-3xl border border-white/60 bg-white/60 p-3 flex flex-col items-center">
-            
-            <div className="flex w-full flex-col gap-2.5">
-              {/* 上へスクロールボタン（色を明るく変更） */}
+          {/* order-2、w-fullを追加し、flex-row（横並び）と overflow-x-auto（横スクロール）を追加 */}
+          {/* 左：アプリ一覧（スマホ時は下部） */}
+          <aside className="order-2 md:order-1 w-full md:w-28 shrink-0 rounded-3xl border border-white/60 bg-white/60 p-3 flex items-center overflow-hidden">
+            <div className="flex w-full flex-row md:flex-col gap-2.5 items-center justify-between">
+              
+              {/* 戻る / 上へ ボタン */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
                 disabled={scrollIndex === 0}
-                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="上へスクロール"
+                className="flex h-12 w-8 md:h-auto md:w-full shrink-0 justify-center items-center rounded-2xl bg-white/80 py-2 text-lg font-bold hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="前へスクロール"
               >
-                ⋀
+                {/* スマホは ＜、PCは ⋀ を表示 */}
+                <span className="md:hidden">＜</span>
+                <span className="hidden md:inline">⋀</span>
               </button>
 
               {/* スクロールするアイコン領域 */}
-              <div className="overflow-hidden w-full flex justify-center" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
+              <div className="overflow-hidden flex flex-1 justify-start md:justify-center md:h-[480px]">
+                {/* 魔法のクラス：スマホはX軸（横）、PCはY軸（縦）にスライド方向を自動で切り替えます */}
                 <div
-                  className="transition-transform duration-300 ease-in-out flex flex-col items-center"
-                  style={{ transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)` }}
+                  className="transition-transform duration-300 ease-in-out flex flex-row md:flex-col items-center gap-4 translate-x-[var(--scroll)] md:translate-x-0 md:translate-y-[var(--scroll)]"
+                  style={{ '--scroll': `-${scrollIndex * 80}px` } as React.CSSProperties}
                 >
-                  <div className="flex flex-col gap-4">
-                    {apps.map((app) => (
-                      <a
-                        key={app.name}
-                        href={app.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={app.name}
-                        // ここが正方形にするクラスです,shadow-md hover:shadow-lgを消してホバー時に少し大きくなるように変更
-                        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white transition-transform hover:scale-105"
-                      >
-                        {/* iconImageが設定されていれば画像、なければ頭文字 */}
-                        {app.icon ? (
-                          <Image
-                            src={app.icon}
-                            alt={app.name}
-                            width={40}
-                            height={40}
-                            className="h-10 w-10 object-contain"
-                          />
-                        ) : (
-                          <span className="text-xl font-bold text-gray-800">
-                            {app.name.charAt(0)}
-                          </span>
-                        )}
-                      </a>
-                    ))}
-                  </div>
+                  {apps.map((app) => (
+                    <a
+                      key={app.name}
+                      href={app.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={app.name}
+                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white transition-transform hover:scale-105"
+                    >
+                      {app.icon ? (
+                        <Image
+                          src={app.icon}
+                          alt={app.name}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 object-contain"
+                        />
+                      ) : (
+                        <span className="text-xl font-bold text-gray-800">
+                          {app.name.charAt(0)}
+                        </span>
+                      )}
+                    </a>
+                  ))}
                 </div>
               </div>
 
-              {/* 下へスクロールボタン(色変更) */}
+              {/* 次へ / 下へ ボタン */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
                 disabled={scrollIndex === maxScrollIndex}
-                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold text-gray-400hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="下へスクロール"
+                className="flex h-12 w-8 md:h-auto md:w-full shrink-0 justify-center items-center rounded-2xl bg-white/80 py-2 text-lg font-bold text-gray-400 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="次へスクロール"
               >
-                ⋁
+                {/* スマホは ＞、PCは ⋁ を表示 */}
+                <span className="md:hidden">＞</span>
+                <span className="hidden md:inline">⋁</span>
               </button>
             </div>
           </aside>
 
           {/* 右：時間割（閲覧のみ） */}
-          <section className="flex flex-col flex-1 min-h-0 rounded-3xl border border-white/60 bg-white/60 p-5 text-gray-800">
+          {/* order-1（スマホは1番目）と md:order-2（PCは2番目）を追加 */}
+          <section className="order-1 md:order-2 flex flex-col flex-1 min-h-0 rounded-3xl border border-white/60 bg-white/60 p-5 text-gray-800">
             <div className="mb-2 shrink-0">
               <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Schedule</p>
               <h2 className="text-xl font-bold leading-tight text-gray-800">時間割</h2>
