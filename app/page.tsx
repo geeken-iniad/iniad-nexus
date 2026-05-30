@@ -31,9 +31,9 @@ export default function Home() {
     { name: "INIAD MOOCS",  url: "https://moocs.iniad.org/",          color: "bg-purple-600", icon: "/img/INIAD.jpg" },
     { name: "Slack",        url: "slack://open",                      color: "bg-red-500",    icon: "/img/slack.png" },
     { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "/img/gemini-color.png" },
-    { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-white-monoblossom.png" },
+    { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-black-monoblossom.png" },
     { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/img/事務課.png" },
-    { name: "赤羽台図書館",        url: "https://sites.google.com/toyo.jp/akabanelib",   color: "bg-yellow-600", icon: "/img/図書館.png" },
+    { name: "赤羽台図書館",        url: "https://www.toyo.ac.jp/library/",   color: "bg-yellow-600", icon: "/img/図書館.png" },
   
   ];
 
