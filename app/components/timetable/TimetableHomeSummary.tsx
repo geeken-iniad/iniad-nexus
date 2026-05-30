@@ -68,7 +68,7 @@ export default function TimetableHomeSummary() {
                   key={i}
                   className={[
                     'pb-1 text-center text-[0.65rem] font-bold',
-                    todayDow === i ? 'text-blue-400' : 'text-gray-400',
+                    todayDow === i ? 'text-blue-600' : 'text-gray-500',
                   ].join(' ')}
                 >
                   {day}
@@ -93,7 +93,7 @@ export default function TimetableHomeSummary() {
                   return (
                     <td key={day} className="p-[2px]">
                       {loading ? (
-                        <div className="h-full min-h-[2.2rem] rounded-lg bg-white/5 animate-pulse" />
+                        <div className="h-full min-h-[2.2rem] rounded-lg bg-black/5 animate-pulse" />
                       ) : entry ? (
                         <div
                           className={[
@@ -101,15 +101,15 @@ export default function TimetableHomeSummary() {
                             isToday ? 'ring-1 ring-blue-400/40' : '',
                           ].join(' ')}
                           style={{
-                            backgroundColor: entry.color ? entry.color + '22' : 'rgba(255,255,255,0.06)',
+                            backgroundColor: entry.color ? entry.color + '44' : 'rgba(255,255,255,0.06)',
                             borderLeft: `2px solid ${entry.color ?? '#94a3b8'}`,
                           }}
                         >
-                          <span className="text-[0.6rem] font-semibold text-white leading-tight line-clamp-2">
+                          <span className="text-[0.6rem] font-semibold text-slate-800 leading-tight line-clamp-2">
                             {entry.subject}
                           </span>
                           {entry.classroom && (
-                            <span className="text-[0.55rem] text-gray-400 truncate leading-tight">
+                            <span className="text-[0.55rem] text-slate-500 truncate leading-tight">
                               {entry.classroom}
                             </span>
                           )}
@@ -117,8 +117,9 @@ export default function TimetableHomeSummary() {
                       ) : (
                         <div
                           className={[
-                            'h-full min-h-[2.2rem] rounded-lg',
-                            isToday ? 'bg-blue-900/20' : 'bg-white/[0.03]',
+                          // border:枠線と border-whiteを追加
+                          'h-full min-h-[2.2rem] rounded-lg border border-gray-300',
+                          isToday ? 'bg-blue-500/20' : 'bg-white/10',
                           ].join(' ')}
                         />
                       )}
