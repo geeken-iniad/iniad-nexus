@@ -17,9 +17,7 @@ type AppLink = {
 const VISIBLE_APP_COUNT = 4;
 const ITEM_STEP_PX = 64;
 const notices = [
-  { date: "4/5", title: "サンプルニュースサンプルニュースサンプルニュース", isNew: true },
-  { date: "4/1", title: "サンプルニュースサンプルニュースサンプルニュース" },
-  { date: "3/29", title: "サンプルニュースサンプルニュースサンプルニュース" },
+  { date: "", title: "～開発中～完成をお待ちください", isNew: true },
 ];
 
 type HomeUser = {
@@ -42,16 +40,16 @@ function UserIcon() {
 
 export default function Home() {
   const apps: AppLink[] = [
-    { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "/img/ACE.jpg" },
-    { name: "Toyo-net G",   url: "https://g-sys.toyo.ac.jp/portal/", color: "bg-green-600",  icon: "/img/G.jpg" },
+    { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "/img/ACE.png" },
+    { name: "Toyo-net G",   url: "https://g-sys.toyo.ac.jp/portal/", color: "bg-green-600",  icon: "/img/G.png" },
     { name: "INIAD MOOCS",  url: "https://moocs.iniad.org/",          color: "bg-purple-600", icon: "/img/INIAD.jpg" },
     { name: "Slack",        url: "slack://open",                      color: "bg-red-500",    icon: "/img/slack.png" },
     { name: "Classroom",    url: "https://classroom.google.com/",     color: "bg-amber-500",  icon: "/img/96x96_yellow_stroke_icon@2x (1).png" },
     { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "/img/gemini-color.png" },
-    { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-white-monoblossom.png" },
-    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/96x96_yellow_stroke_icon@2x.png" },
-    { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/jimuka.jpg" },
-    { name: "赤羽台図書館",        url: "https://sites.google.com/toyo.jp/akabanelib",   color: "bg-yellow-600", icon: "/toshokan.jpg" },
+    { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-black-monoblossom.png" },
+    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/img/96x96_yellow_stroke_icon@2x.png" },
+    { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/img/事務課.png" },
+    { name: "赤羽台図書館",        url: "https://www.toyo.ac.jp/library/",   color: "bg-yellow-600", icon: "/img/図書館.png" },
   
   ];
 
