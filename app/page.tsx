@@ -46,12 +46,12 @@ export default function Home() {
     { name: "Toyo-net G",   url: "https://g-sys.toyo.ac.jp/portal/", color: "bg-green-600",  icon: "/img/G.jpg" },
     { name: "INIAD MOOCS",  url: "https://moocs.iniad.org/",          color: "bg-purple-600", icon: "/img/INIAD.jpg" },
     { name: "Slack",        url: "slack://open",                      color: "bg-red-500",    icon: "/img/slack.png" },
-    { name: "Classroom",    url: "https://classroom.google.com/",     color: "bg-amber-500",  icon: "/img/Classroom.jpg" },
+    { name: "Classroom",    url: "https://classroom.google.com/",     color: "bg-amber-500",  icon: "/img/96x96_yellow_stroke_icon@2x (1).png" },
     { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "/img/gemini-color.png" },
     { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-white-monoblossom.png" },
-    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/img/Timetable.jpg" },
-    { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/img/jimuka.jpg" },
-    { name: "赤羽台図書館",        url: "https://sites.google.com/toyo.jp/akabanelib",   color: "bg-yellow-600", icon: "/img/toshokan.jpg" },
+    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/96x96_yellow_stroke_icon@2x.png" },
+    { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/jimuka.jpg" },
+    { name: "赤羽台図書館",        url: "https://sites.google.com/toyo.jp/akabanelib",   color: "bg-yellow-600", icon: "/toshokan.jpg" },
   
   ];
 
@@ -80,8 +80,15 @@ export default function Home() {
       <div className="min-h-screen w-full overflow-hidden bg-white">
         <header className="relative z-10 flex h-[clamp(68px,8vw,96px)] items-center justify-between bg-[#eaf7fb] px-[clamp(16px,2.5vw,36px)] shadow-[0_14px_22px_-12px_rgba(145,112,205,0.32)]">
           <div className="flex items-center gap-5">
-            <div className="rounded-lg border border-white bg-[#e0f4eb] px-5 py-3 text-sm font-bold">
-              ロゴ
+            <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-[#e0f4eb] shadow-[0_6px_14px_-6px_rgba(46,100,130,0.55)]">
+              <Image
+                src="/INIAD-nexus_icon.webp"
+                alt="INIAD NEXUS ロゴ"
+                width={66}
+                height={66}
+                className="h-[66px] w-[66px] rounded-xl object-contain"
+                priority
+              />
             </div>
             <button
               type="button"
