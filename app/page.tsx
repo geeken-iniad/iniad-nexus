@@ -1,6 +1,9 @@
+// page.tsx
+
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 
@@ -11,8 +14,8 @@ type AppLink = {
   icon: string;
 };
 
-const VISIBLE_APP_COUNT = 6;
-const ITEM_STEP_PX = 80;
+const VISIBLE_APP_COUNT = 4;
+const ITEM_STEP_PX = 64;
 
 type HomeUser = {
   email?: string | null;
@@ -22,6 +25,15 @@ type HomeUser = {
     avatar_url?: string | null;
   } | null;
 };
+
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[1.7]">
+      <circle cx="12" cy="8" r="3.2" />
+      <path d="M5.5 19.5v-2.1A5.4 5.4 0 0 1 10.9 12h2.2a5.4 5.4 0 0 1 5.4 5.4v2.1" />
+    </svg>
+  );
+}
 
 export default function Home() {
   const apps: AppLink[] = [
@@ -58,69 +70,56 @@ export default function Home() {
   const userAvatar = supabaseUser?.user_metadata?.avatar_url;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#EBF4FA] via-[#D0E2FF] to-[#C1DBFE] p-6 pb-24 text-gray-800">
-      {/* 背景色ここで変更 */}
-      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col gap-4">
-        {/* ヘッダー ,shadow-xl を一度削除*/}
-        <header className="flex items-center justify-between rounded-3xl border border-white/60 bg-white/60 px-4 py-3 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/INIAD-nexus_icon.webp"
-              alt="INIAD NEXUS ロゴ"
-              width={48}
-              height={48}
-              className="h-12 w-12 rounded-full bg-white/ object-coverborder border-gray-100"
-              priority
-            />
-            <div>
-              <p className="text-xs text-gray-500">INIAD Nexus</p>
-              <h1 className="text-lg font-bold text-gray-800">Home</h1>
+    <main className="min-h-screen bg-white text-[#32323b]">
+      <div className="min-h-screen w-full overflow-hidden bg-white">
+        <header className="flex h-[clamp(68px,8vw,96px)] items-center justify-between bg-[#eaf7fb] px-[clamp(16px,2.5vw,36px)]">
+          <div className="flex items-center gap-5">
+            <div className="rounded-lg border border-white bg-[#e0f4eb] px-5 py-3 text-sm font-bold">
+              ロゴ
+            </div>
+            <div className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#247fc1] text-xl text-white">
+              ♘
+              <span className="absolute -left-0.5 -top-0.5 h-3.5 w-3.5 rounded-full bg-red-500" />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-full bg-gray-500/10 px-3 py-2">
+          <div className="flex items-center gap-3">
             {userAvatar ? (
               <Image
                 src={userAvatar}
                 alt={userName}
-                width={36}
-                height={36}
-                className="h-9 w-9 rounded-full object-cover"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#33C5C5] to-[#2B86B8] text-sm font-bold text-white">
-                {userName.charAt(0).toUpperCase()}
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ff5961] text-white">
+                <UserIcon />
               </div>
             )}
-            <p className="text-sm font-semibold text-gray-800">{userName}</p>
+            <p className="max-w-44 truncate text-sm font-semibold">{userName}</p>
           </div>
         </header>
 
-        {/* メインエリア */}
-        <div className="flex min-h-[calc(100vh-14rem)] gap-4">
-
-          {/* 左：アプリ一覧 */}
-          <aside className="w-28 shrink-0 rounded-3xl border border-white/60 bg-white/60 p-3 flex flex-col items-center">
-            
-            <div className="flex w-full flex-col gap-2.5">
-              {/* 上へスクロールボタン（色を明るく変更） */}
+        <div className="flex min-h-[calc(100vh-clamp(68px,8vw,96px))]">
+          <aside className="flex w-[clamp(80px,9vw,120px)] shrink-0 items-center bg-gradient-to-b from-[#c7eef0] to-[#79bdea] px-3 py-2">
+            <div className="flex w-full flex-col gap-2">
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
                 disabled={scrollIndex === 0}
-                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
                 aria-label="上へスクロール"
               >
                 ⋀
               </button>
 
-              {/* スクロールするアイコン領域 */}
-              <div className="overflow-hidden w-full flex justify-center" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
+              <div className="w-full overflow-hidden" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
                 <div
-                  className="transition-transform duration-300 ease-in-out flex flex-col items-center"
+                  className="flex flex-col items-center transition-transform duration-300 ease-in-out"
                   style={{ transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)` }}
                 >
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3">
                     {apps.map((app) => (
                       <a
                         key={app.name}
@@ -128,17 +127,15 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title={app.name}
-                        // ここが正方形にするクラスです,shadow-md hover:shadow-lgを消してホバー時に少し大きくなるように変更
-                        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white transition-transform hover:scale-105"
+                        className="flex h-[52px] w-[52px] shrink-0 items-center justify-center transition-transform hover:scale-110"
                       >
-                        {/* iconImageが設定されていれば画像、なければ頭文字 */}
                         {app.icon ? (
                           <Image
                             src={app.icon}
                             alt={app.name}
-                            width={40}
-                            height={40}
-                            className="h-10 w-10 object-contain"
+                            width={52}
+                            height={52}
+                            className="h-[52px] w-[52px] rounded-full border-2 border-white bg-white object-contain"
                           />
                         ) : (
                           <span className="text-xl font-bold text-gray-800">
@@ -151,30 +148,40 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 下へスクロールボタン(色変更) */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
                 disabled={scrollIndex === maxScrollIndex}
-                className="flex w-full justify-center rounded-2xl bg-white/80 py-2 text-lg font-bold text-gray-400hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
                 aria-label="下へスクロール"
               >
                 ⋁
               </button>
+              <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white">
+                +
+              </div>
             </div>
           </aside>
 
-          {/* 右：時間割（閲覧のみ） */}
-          <section className="flex flex-col flex-1 min-h-0 rounded-3xl border border-white/60 bg-white/60 p-5 text-gray-800">
-            <div className="mb-2 shrink-0">
-              <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Schedule</p>
-              <h2 className="text-xl font-bold leading-tight text-gray-800">時間割</h2>
-            </div>
-            <div className="flex-1 min-h-0">
+          <section className="flex flex-1 flex-col gap-8 px-[clamp(24px,5vw,80px)] py-[clamp(20px,4vw,56px)] md:flex-row md:items-start md:gap-[clamp(44px,8vw,140px)]">
+            <div className="h-[clamp(242px,48vw,620px)] w-full shrink-0 md:w-[clamp(340px,52vw,760px)]">
               <TimetableHomeSummary />
             </div>
+            <div className="flex flex-1 items-center justify-center gap-4 self-stretch md:flex-col md:gap-[clamp(28px,4vw,54px)]">
+              <Link
+                href="/timetable"
+                className="w-[clamp(140px,15vw,230px)] rounded-full bg-gradient-to-r from-[#d5f3e8] to-[#88c9f5] px-4 py-[clamp(11px,1.3vw,17px)] text-center text-[clamp(13px,1.15vw,17px)] font-bold transition-transform hover:scale-105"
+              >
+                授業登録
+              </Link>
+              <Link
+                href="/timetable"
+                className="w-[clamp(140px,15vw,230px)] rounded-full bg-[#2785bf] px-4 py-[clamp(11px,1.3vw,17px)] text-center text-[clamp(13px,1.15vw,17px)] font-bold text-white transition-transform hover:scale-105"
+              >
+                予定登録
+              </Link>
+            </div>
           </section>
-
         </div>
       </div>
     </main>
