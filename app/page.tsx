@@ -16,6 +16,11 @@ type AppLink = {
 
 const VISIBLE_APP_COUNT = 4;
 const ITEM_STEP_PX = 64;
+const notices = [
+  { date: "4/5", title: "サンプルニュースサンプルニュースサンプルニュース", isNew: true },
+  { date: "4/1", title: "サンプルニュースサンプルニュースサンプルニュース" },
+  { date: "3/29", title: "サンプルニュースサンプルニュースサンプルニュース" },
+];
 
 type HomeUser = {
   email?: string | null;
@@ -52,6 +57,7 @@ export default function Home() {
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
   const [scrollIndex,  setScrollIndex]  = useState(0);
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/calendar-user")
@@ -72,15 +78,21 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-[#32323b]">
       <div className="min-h-screen w-full overflow-hidden bg-white">
-        <header className="flex h-[clamp(68px,8vw,96px)] items-center justify-between bg-[#eaf7fb] px-[clamp(16px,2.5vw,36px)]">
+        <header className="relative z-10 flex h-[clamp(68px,8vw,96px)] items-center justify-between bg-[#eaf7fb] px-[clamp(16px,2.5vw,36px)] shadow-[0_14px_22px_-12px_rgba(145,112,205,0.32)]">
           <div className="flex items-center gap-5">
             <div className="rounded-lg border border-white bg-[#e0f4eb] px-5 py-3 text-sm font-bold">
               ロゴ
             </div>
-            <div className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#247fc1] text-xl text-white">
+            <button
+              type="button"
+              onClick={() => setIsNoticeOpen((current) => !current)}
+              aria-label="おしらせを開く"
+              aria-expanded={isNoticeOpen}
+              className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#247fc1] text-xl text-white transition-transform hover:scale-105"
+            >
               ♘
               <span className="absolute -left-0.5 -top-0.5 h-3.5 w-3.5 rounded-full bg-red-500" />
-            </div>
+            </button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -100,6 +112,39 @@ export default function Home() {
             <p className="max-w-44 truncate text-sm font-semibold">{userName}</p>
           </div>
         </header>
+
+        {isNoticeOpen && (
+          <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/15 px-4 py-8">
+            <section className="min-h-[min(72vh,620px)] w-[min(92vw,760px)] rounded-3xl bg-gradient-to-b from-[#e9fbf7] to-[#b9dcf7] px-[clamp(20px,4vw,48px)] pb-16 pt-6 shadow-xl">
+              <div className="relative border-b-2 border-[#4c565c] pb-4 text-center">
+                <h2 className="text-[clamp(16px,2vw,22px)] font-extrabold">おしらせ＆ニュース</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsNoticeOpen(false)}
+                  aria-label="おしらせを閉じる"
+                  className="absolute -right-1 -top-2 text-4xl font-light leading-none text-[#344048] transition-transform hover:scale-110"
+                >
+                  ×
+                </button>
+              </div>
+
+              <ul className="mt-[clamp(48px,8vh,88px)] space-y-[clamp(20px,3vh,34px)]">
+                {notices.map((notice) => (
+                  <li key={`${notice.date}-${notice.title}`} className="flex items-center gap-2 text-[clamp(14px,1.8vw,19px)] font-semibold">
+                    {notice.isNew && (
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-[#ff7b89] text-sm font-extrabold text-[#ff7b89]">
+                        !
+                      </span>
+                    )}
+                    <span className="underline underline-offset-2">
+                      {notice.date}　{notice.title}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        )}
 
         <div className="flex min-h-[calc(100vh-clamp(68px,8vw,96px))]">
           <aside className="flex w-[clamp(80px,9vw,120px)] shrink-0 items-center bg-gradient-to-b from-[#c7eef0] to-[#79bdea] px-3 py-2">
