@@ -15,7 +15,7 @@ export default function BottomNav() {
     { href: '/', label: 'Home', icon: '🏠' },
     { href: '/timetable', label: '時間割', icon: '📅' },
     { href: '/schedule', label: 'スケジュール', icon: '📝' },
-    { href: '/others', label: 'その他', icon: '⚙️' },
+    { href: '/mypage', label: 'mypage', icon: '🙏' },
   ];
 
   return (

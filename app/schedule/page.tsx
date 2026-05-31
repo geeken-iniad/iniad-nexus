@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import LogoutButton from "../components/LogoutButton";
+import ProfileEditModal from '../components/mypage/ProfileEditModal'
 
 export default function SchedulePage() {
     const [user, setUser] = useState<User | null>(null);
