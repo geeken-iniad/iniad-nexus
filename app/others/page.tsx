@@ -1,4 +1,5 @@
-import BottomNav from "../components/BottomNav"; // ←パスが違う場合は直してください
+import BottomNav from "../components/BottomNav";
+import Link from "next/link"; // ← これを追加！
 
 export default function OthersPage() {
   return (
@@ -13,6 +14,14 @@ export default function OthersPage() {
           フレンド機能や課題登録など、<br />
           今後の新機能追加を楽しみにお待ちください！
         </p>
+
+        {/* ホームに戻るボタンをカード内に追加 */}
+        <Link 
+          href="/"
+          className="mt-4 rounded-2xl bg-white/80 border border-white/60 px-8 py-3 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-white hover:scale-105 active:scale-95"
+        >
+          ← Homeに戻る
+        </Link>
       </div>
 
       <BottomNav />
