@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'lh5.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'nufejiwzkdwpjjhtmruy.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/avatars/**',
+      },
     ],
   },
 };

@@ -58,7 +58,10 @@ export async function updateMyProfile(updates: ProfileUpdate): Promise<Profile> 
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    console.error('Supabase Update Errorの詳細:', error)
+    throw error
+  }
   return data
 }
 
@@ -67,15 +70,22 @@ export async function uploadAvatar(file: File): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('ログインが必要です')
 
-  const ext  = file.name.split('.').pop()
+  const ext = file.name.split('.').pop()
   const path = `${user.id}/avatar.${ext}`
 
   const { error: uploadError } = await supabase.storage
     .from('avatars')
-    .upload(path, file, { upsert: true })
+    .upload(path, file, { 
+      upsert: true,
+      contentType: file.type 
+    })
 
-  if (uploadError) throw uploadError
+  if (uploadError) {
+    console.error('🔥 Storage Upload Errorの詳細:', uploadError)
+    throw uploadError
+  }
 
   const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+  
   return `${data.publicUrl}?t=${Date.now()}`
 }
