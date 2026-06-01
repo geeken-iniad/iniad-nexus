@@ -2,7 +2,7 @@ import TimetableGrid from '@/app/components/timetable/TimetableGrid'
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'INIAD Nexas',
+  title: 'INIAD Nexus',
 }
 
 export default function TimetablePage() {
