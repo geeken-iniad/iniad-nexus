@@ -1,4 +1,4 @@
-// app/auth/callback/route.ts
+// app/api/auth/callback/google/route.ts
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
