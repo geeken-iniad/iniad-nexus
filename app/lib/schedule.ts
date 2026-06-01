@@ -1,7 +1,7 @@
 // アプリで扱う授業データの型
 export type Course = {
   id: string;
-  title: string;       
+  title: string;
   day: number;         // 曜日 (1=月, 2=火, ..., 6=土)
   period: number;      // 時限 (1~8)
   room?: string;       // 教室 (JSONには含まれていないため今回は空)
@@ -46,14 +46,14 @@ export function getScheduleData(): Course[] {
   }
 
   const courses: Course[] = [];
-  
+
   Object.entries(rawData).forEach(([periodKey, dayArray]) => {
     const period = parseInt(periodKey, 10);
     if (isNaN(period)) return;
 
     dayArray.forEach((rawTitle, index) => {
       if (!rawTitle) return;
-      
+
       // "科目名/英語名..." を短縮
       const cleanTitle = rawTitle.split('/')[0];
 
@@ -73,7 +73,7 @@ export function getScheduleData(): Course[] {
 export function getNextClass(): Course | null {
   const courses = getScheduleData();
   const now = new Date();
-  const currentDay = now.getDay(); 
+  const currentDay = now.getDay();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   const toMinutes = (timeStr: string) => {
@@ -87,8 +87,8 @@ export function getNextClass(): Course | null {
 
   for (const course of todaysCourses) {
     const periodData = PERIODS.find(p => p.id === course.period);
-    if (!periodData) continue; 
-    
+    if (!periodData) continue;
+
     if (currentMinutes < toMinutes(periodData.end)) {
       return course;
     }

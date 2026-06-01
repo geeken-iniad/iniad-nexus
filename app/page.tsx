@@ -1,8 +1,11 @@
+// page.tsx
+
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import BottomNav from "./components/BottomNav";
+import LogoutButton from "./components/LogoutButton";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 
 type AppLink = {
@@ -12,8 +15,11 @@ type AppLink = {
   icon: string;
 };
 
-const VISIBLE_APP_COUNT = 6;
-const ITEM_STEP_PX = 80;
+const VISIBLE_APP_COUNT = 4;
+const ITEM_STEP_PX = 64;
+const notices = [
+  { date: "", title: "～開発中～完成をお待ちください", isNew: true },
+];
 
 type HomeUser = {
   email?: string | null;
@@ -24,14 +30,25 @@ type HomeUser = {
   } | null;
 };
 
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[1.7]">
+      <circle cx="12" cy="8" r="3.2" />
+      <path d="M5.5 19.5v-2.1A5.4 5.4 0 0 1 10.9 12h2.2a5.4 5.4 0 0 1 5.4 5.4v2.1" />
+    </svg>
+  );
+}
+
 export default function Home() {
   const apps: AppLink[] = [
     { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "/img/ACE.png" },
     { name: "Toyo-net G",   url: "https://g-sys.toyo.ac.jp/portal/", color: "bg-green-600",  icon: "/img/G.png" },
     { name: "INIAD MOOCS",  url: "https://moocs.iniad.org/",          color: "bg-purple-600", icon: "/img/INIAD.jpg" },
     { name: "Slack",        url: "slack://open",                      color: "bg-red-500",    icon: "/img/slack.png" },
+    { name: "Classroom",    url: "https://classroom.google.com/",     color: "bg-amber-500",  icon: "/img/96x96_yellow_stroke_icon@2x (1).png" },
     { name: "Gemini",       url: "https://gemini.google.com/",        color: "bg-indigo-500", icon: "/img/gemini-color.png" },
     { name: "ChatGPT",      url: "https://chatgpt.com/",              color: "bg-teal-600",   icon: "/img/OpenAI-black-monoblossom.png" },
+    { name: "Timetable",    url: "/timetable",                        color: "bg-gray-700",   icon: "/img/96x96_yellow_stroke_icon@2x.png" },
     { name: "赤羽台事務課",     url: "https://sites.google.com/iniad.org/iniad-office-students",color: "bg-gray-500",   icon: "/img/事務課.png" },
     { name: "赤羽台図書館",        url: "https://www.toyo.ac.jp/library/",   color: "bg-yellow-600", icon: "/img/図書館.png" },
   
@@ -39,6 +56,8 @@ export default function Home() {
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
   const [scrollIndex,  setScrollIndex]  = useState(0);
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/calendar-user")
@@ -57,131 +76,187 @@ export default function Home() {
   const userAvatar = supabaseUser?.user_metadata?.avatar_url;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#EBF4FA] via-[#D0E2FF] to-[#C1DBFE] p-6 pb-24 text-gray-800">
-      {/* 背景色ここで変更 */}
-      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col gap-4">
-        {/* ヘッダー ,shadow-xl を一度削除*/}
-        <header className="flex items-center justify-between rounded-3xl border border-white/60 bg-white/60 px-4 py-3 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/INIAD-nexus_icon.webp"
-              alt="INIAD NEXUS ロゴ"
-              width={48}
-              height={48}
-              className="h-12 w-12 rounded-full bg-white/ object-coverborder border-gray-100"
-              priority
-            />
-            <div>
-              <p className="text-xs text-gray-500">INIAD Nexus</p>
-              <h1 className="text-lg font-bold text-gray-800">Home</h1>
+    <main className="min-h-screen bg-white text-[#32323b]">
+      <div className="min-h-screen w-full overflow-hidden bg-white">
+        <header className="relative z-10 flex h-[clamp(68px,8vw,96px)] items-center justify-between bg-[#eaf7fb] px-[clamp(16px,2.5vw,36px)] shadow-[0_14px_22px_-12px_rgba(145,112,205,0.32)]">
+          <div className="flex items-center gap-5">
+            <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-[#e0f4eb] shadow-[0_6px_14px_-6px_rgba(46,100,130,0.55)]">
+              <Image
+                src="/INIAD-nexus_icon.webp"
+                alt="INIAD NEXUS ロゴ"
+                width={66}
+                height={66}
+                className="h-[66px] w-[66px] rounded-xl object-contain"
+                priority
+              />
             </div>
+            <button
+              type="button"
+              onClick={() => setIsNoticeOpen((current) => !current)}
+              aria-label="おしらせを開く"
+              aria-expanded={isNoticeOpen}
+              className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#247fc1] text-xl text-white transition-transform hover:scale-105"
+            >
+              ♘
+              <span className="absolute -left-0.5 -top-0.5 h-3.5 w-3.5 rounded-full bg-red-500" />
+            </button>
           </div>
 
-          <div className="flex items-center gap-3 rounded-full bg-gray-500/10 px-3 py-2">
-            {userAvatar ? (
-              <Image
-                src={userAvatar}
-                alt={userName}
-                width={36}
-                height={36}
-                className="h-9 w-9 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#33C5C5] to-[#2B86B8] text-sm font-bold text-white">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <p className="text-sm font-semibold text-gray-800">{userName}</p>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsAccountMenuOpen((current) => !current)}
+              aria-label="アカウントメニューを開く"
+              aria-expanded={isAccountMenuOpen}
+              className="flex items-center gap-3 rounded-full px-2 py-1 transition-colors hover:bg-white/55"
+            >
+              {userAvatar ? (
+                <Image
+                  src={userAvatar}
+                  alt={userName}
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ff5961] text-white">
+                  <UserIcon />
+                </div>
+              )}
+              <p className="max-w-44 truncate text-sm font-semibold">{userName}</p>
+            </button>
+
+            <div
+              className={[
+                "absolute right-0 top-full mt-2 w-36 origin-top overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
+                isAccountMenuOpen
+                  ? "translate-y-0 scale-y-100 opacity-100"
+                  : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
+              ].join(" ")}
+            >
+              <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
+                ログアウト
+              </LogoutButton>
+            </div>
           </div>
         </header>
 
-        {/* メインエリア */}
-        {/* flex-col（縦）と md:flex-row（PCは横）を追加 */}
-        <div className="flex flex-col md:flex-row min-h-[calc(100vh-14rem)] gap-4">
+        {isNoticeOpen && (
+          <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/15 px-4 py-8">
+            <section className="min-h-[min(72vh,620px)] w-[min(92vw,760px)] rounded-3xl bg-gradient-to-b from-[#e9fbf7] to-[#b9dcf7] px-[clamp(20px,4vw,48px)] pb-16 pt-6 shadow-xl">
+              <div className="relative border-b-2 border-[#4c565c] pb-4 text-center">
+                <h2 className="text-[clamp(16px,2vw,22px)] font-extrabold">おしらせ＆ニュース</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsNoticeOpen(false)}
+                  aria-label="おしらせを閉じる"
+                  className="absolute -right-1 -top-2 text-4xl font-light leading-none text-[#344048] transition-transform hover:scale-110"
+                >
+                  ×
+                </button>
+              </div>
 
-          {/* 左：アプリ一覧 */}
-          {/* order-2、w-fullを追加し、flex-row（横並び）と overflow-x-auto（横スクロール）を追加 */}
-          {/* 左：アプリ一覧（スマホ時は下部） */}
-          <aside className="order-2 md:order-1 w-full md:w-28 shrink-0 rounded-3xl border border-white/60 bg-white/60 p-3 flex items-center overflow-hidden">
-            <div className="flex w-full flex-row md:flex-col gap-2.5 items-center justify-between">
-              
-              {/* 戻る / 上へ ボタン */}
+              <ul className="mt-[clamp(48px,8vh,88px)] space-y-[clamp(20px,3vh,34px)]">
+                {notices.map((notice) => (
+                  <li key={`${notice.date}-${notice.title}`} className="flex items-center gap-2 text-[clamp(14px,1.8vw,19px)] font-semibold">
+                    {notice.isNew && (
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-[#ff7b89] text-sm font-extrabold text-[#ff7b89]">
+                        !
+                      </span>
+                    )}
+                    <span className="underline underline-offset-2">
+                      {notice.date}　{notice.title}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        )}
+
+        <div className="flex min-h-[calc(100vh-clamp(68px,8vw,96px))]">
+          <aside className="flex w-[clamp(80px,9vw,120px)] shrink-0 items-center bg-gradient-to-b from-[#c7eef0] to-[#79bdea] px-3 py-2">
+            <div className="flex w-full flex-col gap-2">
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
                 disabled={scrollIndex === 0}
-                className="flex h-12 w-8 md:h-auto md:w-full shrink-0 justify-center items-center rounded-2xl bg-white/80 py-2 text-lg font-bold hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="前へスクロール"
+                className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
+                aria-label="上へスクロール"
               >
-                {/* スマホは ＜、PCは ⋀ を表示 */}
-                <span className="md:hidden">＜</span>
-                <span className="hidden md:inline">⋀</span>
+                ⋀
               </button>
 
-              {/* スクロールするアイコン領域 */}
-              <div className="overflow-hidden flex flex-1 justify-start md:justify-center md:h-[480px]">
-                {/* 魔法のクラス：スマホはX軸（横）、PCはY軸（縦）にスライド方向を自動で切り替えます */}
+              <div className="w-full overflow-hidden" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
                 <div
-                  className="transition-transform duration-300 ease-in-out flex flex-row md:flex-col items-center gap-4 translate-x-[var(--scroll)] md:translate-x-0 md:translate-y-[var(--scroll)]"
-                  style={{ '--scroll': `-${scrollIndex * 80}px` } as React.CSSProperties}
+                  className="flex flex-col items-center transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)` }}
                 >
-                  {apps.map((app) => (
-                    <a
-                      key={app.name}
-                      href={app.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={app.name}
-                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white transition-transform hover:scale-105"
-                    >
-                      {app.icon ? (
-                        <Image
-                          src={app.icon}
-                          alt={app.name}
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 object-contain"
-                        />
-                      ) : (
-                        <span className="text-xl font-bold text-gray-800">
-                          {app.name.charAt(0)}
-                        </span>
-                      )}
-                    </a>
-                  ))}
+                  <div className="flex flex-col gap-3">
+                    {apps.map((app) => (
+                      <a
+                        key={app.name}
+                        href={app.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={app.name}
+                        className="flex h-[52px] w-[52px] shrink-0 items-center justify-center transition-transform hover:scale-110"
+                      >
+                        {app.icon ? (
+                          <Image
+                            src={app.icon}
+                            alt={app.name}
+                            width={52}
+                            height={52}
+                            className="h-[52px] w-[52px] rounded-full border-2 border-white bg-white object-contain"
+                          />
+                        ) : (
+                          <span className="text-xl font-bold text-gray-800">
+                            {app.name.charAt(0)}
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* 次へ / 下へ ボタン */}
               <button
                 type="button"
                 onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
                 disabled={scrollIndex === maxScrollIndex}
-                className="flex h-12 w-8 md:h-auto md:w-full shrink-0 justify-center items-center rounded-2xl bg-white/80 py-2 text-lg font-bold text-gray-400 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="次へスクロール"
+                className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
+                aria-label="下へスクロール"
               >
-                {/* スマホは ＞、PCは ⋁ を表示 */}
-                <span className="md:hidden">＞</span>
-                <span className="hidden md:inline">⋁</span>
+                ⋁
               </button>
+              <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white">
+                +
+              </div>
             </div>
           </aside>
 
-          {/* 右：時間割（閲覧のみ） */}
-          {/* order-1（スマホは1番目）と md:order-2（PCは2番目）を追加 */}
-          <section className="order-1 md:order-2 flex flex-col flex-1 min-h-0 rounded-3xl border border-white/60 bg-white/60 p-5 text-gray-800">
-            <div className="mb-2 shrink-0">
-              <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Schedule</p>
-              <h2 className="text-xl font-bold leading-tight text-gray-800">時間割</h2>
-            </div>
-            <div className="flex-1 min-h-0">
+          <section className="flex flex-1 flex-col gap-8 px-[clamp(24px,5vw,80px)] py-[clamp(20px,4vw,56px)] md:flex-row md:items-start md:gap-[clamp(44px,8vw,140px)]">
+            <div className="h-[clamp(242px,48vw,620px)] w-full shrink-0 md:w-[clamp(340px,52vw,760px)]">
               <TimetableHomeSummary />
             </div>
+            <div className="flex flex-1 items-center justify-center gap-4 self-stretch md:flex-col md:gap-[clamp(28px,4vw,54px)]">
+              <Link
+                href="/timetable"
+                className="w-[clamp(140px,15vw,230px)] rounded-full bg-gradient-to-r from-[#d5f3e8] to-[#88c9f5] px-4 py-[clamp(11px,1.3vw,17px)] text-center text-[clamp(13px,1.15vw,17px)] font-bold transition-transform hover:scale-105"
+              >
+                授業登録
+              </Link>
+              <Link
+                href="/timetable"
+                className="w-[clamp(140px,15vw,230px)] rounded-full bg-[#2785bf] px-4 py-[clamp(11px,1.3vw,17px)] text-center text-[clamp(13px,1.15vw,17px)] font-bold text-white transition-transform hover:scale-105"
+              >
+                予定登録
+              </Link>
+            </div>
           </section>
-
         </div>
       </div>
-      <BottomNav />
     </main>
   );
 }
