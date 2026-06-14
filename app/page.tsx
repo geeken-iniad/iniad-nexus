@@ -128,12 +128,20 @@ export default function Home() {
 
             <div
               className={[
-                "absolute right-0 top-full mt-2 w-36 origin-top overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
+                "absolute right-0 top-full mt-2 w-36 origin-top flex flex-col overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
                 isAccountMenuOpen
                   ? "translate-y-0 scale-y-100 opacity-100"
                   : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
               ].join(" ")}
             >
+              {/* マイページへのリンクを追加 */}
+              <Link
+                href="/mypage"
+                className="block w-full px-4 py-3 text-center text-sm font-bold text-[#344048] border-b border-gray-100 transition-colors hover:bg-[#eaf7fb]"
+              >
+                マイページ
+              </Link>
+              
               <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
                 ログアウト
               </LogoutButton>
