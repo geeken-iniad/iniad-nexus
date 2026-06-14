@@ -7,6 +7,7 @@ export interface Profile {
   avatar_url: string | null
   university: string | null
   enrollment_year: number | null
+  bio: string | null
   created_at: string
 }
 
@@ -14,6 +15,7 @@ export interface ProfileUpdate {
   display_name?: string
   avatar_url?: string | null
   enrollment_year?: number | null
+  bio?: string
 }
 
 export async function fetchMyProfile(): Promise<Profile> {
