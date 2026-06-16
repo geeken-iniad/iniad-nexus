@@ -132,7 +132,6 @@ export default function Home() {
             >
               お問い合わせはこちら
             </Link>
-
             <div ref={accountMenuRef} className="relative">
               <button
                 type="button"
