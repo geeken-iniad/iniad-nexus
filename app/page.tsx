@@ -4,7 +4,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LogoutButton from "./components/LogoutButton";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 
@@ -58,11 +58,34 @@ export default function Home() {
   const [scrollIndex,  setScrollIndex]  = useState(0);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetch("/api/calendar-user")
       .then((res) => res.json())
       .then((data) => setSupabaseUser(data));
+  }, []);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const maxScrollIndex = Math.max(0, apps.length - VISIBLE_APP_COUNT);
@@ -110,28 +133,27 @@ export default function Home() {
               お問い合わせはこちら
             </Link>
 
-            <div className="relative">
+            <div ref={accountMenuRef} className="relative">
               <button
                 type="button"
                 onClick={() => setIsAccountMenuOpen((current) => !current)}
                 aria-label="アカウントメニューを開く"
                 aria-expanded={isAccountMenuOpen}
-                className="flex items-center gap-3 rounded-full px-2 py-1 transition-colors hover:bg-white/55"
+                className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white bg-white/85 shadow-sm transition-transform hover:scale-105"
               >
                 {userAvatar ? (
                   <Image
                     src={userAvatar}
                     alt={userName}
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 rounded-full object-cover"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ff5961] text-white">
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-[#ff5961] text-white">
                     <UserIcon />
                   </div>
                 )}
-                <p className="max-w-44 truncate text-sm font-semibold">{userName}</p>
               </button>
 
               <div
@@ -142,6 +164,14 @@ export default function Home() {
                     : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
                 ].join(" ")}
               >
+                <Link
+                  href="/mypage"
+                  className="block w-full border-b border-gray-100 px-4 py-3 text-center text-sm font-bold text-[#344048] transition-colors hover:bg-[#eaf7fb]"
+                  onClick={() => setIsAccountMenuOpen(false)}
+                >
+                  マイページ
+                </Link>
+
                 <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
                   ログアウト
                 </LogoutButton>
