@@ -4,7 +4,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LogoutButton from "./components/LogoutButton";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 
@@ -58,11 +58,34 @@ export default function Home() {
   const [scrollIndex,  setScrollIndex]  = useState(0);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetch("/api/calendar-user")
       .then((res) => res.json())
       .then((data) => setSupabaseUser(data));
+  }, []);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const maxScrollIndex = Math.max(0, apps.length - VISIBLE_APP_COUNT);
@@ -109,26 +132,49 @@ export default function Home() {
             >
               お問い合わせはこちら
             </Link>
-
-            <div
-              className={[
-                "absolute right-0 top-full mt-2 w-36 origin-top flex flex-col overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
-                isAccountMenuOpen
-                  ? "translate-y-0 scale-y-100 opacity-100"
-                  : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
-              ].join(" ")}
-            >
-              {/* マイページへのリンクを追加 */}
-              <Link
-                href="/mypage"
-                className="block w-full px-4 py-3 text-center text-sm font-bold text-[#344048] border-b border-gray-100 transition-colors hover:bg-[#eaf7fb]"
+            <div ref={accountMenuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsAccountMenuOpen((current) => !current)}
+                aria-label="アカウントメニューを開く"
+                aria-expanded={isAccountMenuOpen}
+                className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white bg-white/85 shadow-sm transition-transform hover:scale-105"
               >
-                マイページ
-              </Link>
-              
-              <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
-                ログアウト
-              </LogoutButton>
+                {userAvatar ? (
+                  <Image
+                    src={userAvatar}
+                    alt={userName}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-full bg-[#ff5961] text-white">
+                    <UserIcon />
+                  </div>
+                )}
+              </button>
+
+              <div
+                className={[
+                  "absolute right-0 top-full mt-2 w-36 origin-top overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
+                  isAccountMenuOpen
+                    ? "translate-y-0 scale-y-100 opacity-100"
+                    : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
+                ].join(" ")}
+              >
+                <Link
+                  href="/mypage"
+                  className="block w-full border-b border-gray-100 px-4 py-3 text-center text-sm font-bold text-[#344048] transition-colors hover:bg-[#eaf7fb]"
+                  onClick={() => setIsAccountMenuOpen(false)}
+                >
+                  マイページ
+                </Link>
+
+                <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
+                  ログアウト
+                </LogoutButton>
+              </div>
             </div>
           </div>
         </header>
