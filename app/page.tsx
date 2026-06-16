@@ -110,42 +110,25 @@ export default function Home() {
               お問い合わせはこちら
             </Link>
 
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsAccountMenuOpen((current) => !current)}
-                aria-label="アカウントメニューを開く"
-                aria-expanded={isAccountMenuOpen}
-                className="flex items-center gap-3 rounded-full px-2 py-1 transition-colors hover:bg-white/55"
+            <div
+              className={[
+                "absolute right-0 top-full mt-2 w-36 origin-top flex flex-col overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
+                isAccountMenuOpen
+                  ? "translate-y-0 scale-y-100 opacity-100"
+                  : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
+              ].join(" ")}
+            >
+              {/* マイページへのリンクを追加 */}
+              <Link
+                href="/mypage"
+                className="block w-full px-4 py-3 text-center text-sm font-bold text-[#344048] border-b border-gray-100 transition-colors hover:bg-[#eaf7fb]"
               >
-                {userAvatar ? (
-                  <Image
-                    src={userAvatar}
-                    alt={userName}
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ff5961] text-white">
-                    <UserIcon />
-                  </div>
-                )}
-                <p className="max-w-44 truncate text-sm font-semibold">{userName}</p>
-              </button>
-
-              <div
-                className={[
-                  "absolute right-0 top-full mt-2 w-36 origin-top overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
-                  isAccountMenuOpen
-                    ? "translate-y-0 scale-y-100 opacity-100"
-                    : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
-                ].join(" ")}
-              >
-                <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
-                  ログアウト
-                </LogoutButton>
-              </div>
+                マイページ
+              </Link>
+              
+              <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
+                ログアウト
+              </LogoutButton>
             </div>
           </div>
         </header>
