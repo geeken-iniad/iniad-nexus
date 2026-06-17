@@ -6,7 +6,7 @@ import type { SemesterType, TimetableEntry } from '@/types/timetable'
 import { currentAcademicYear, DAYS, PERIODS } from '@/types/timetable'
 import { fetchTimetable } from '@/utils/supabase/timetable'
 
-const HOME_DAYS = [...DAYS, '土', '日'] as const
+const HOME_DAYS = [...DAYS,] as const
 const DOT_COLORS = ['#b9a5ae', '#9a7899', '#846188', '#efd483', '#e8c177', '#dda068', '#d98242']
 
 /** 現在の学期を4月〜9月=spring、10月〜3月=fall で判定 */
@@ -41,13 +41,19 @@ export default function TimetableHomeSummary() {
   })()
 
   return (
-    <div className="flex h-full flex-col gap-2">
+    
+    <div className="flex w-full flex-col rounded-[2rem] bg-white/80 p-5 shadow-sm backdrop-blur-md md:p-8">
       {/* サブヘッダー */}
-      <div className="sr-only">
-        <span>
+      <div className="mb-1 text-[10px] font-bold tracking-[0.15em] text-slate-400">
+        SCHEDULE
+      </div>
+      <h2 className="mb-2 text-2xl font-extrabold text-slate-800">時間割</h2>
+
+      <div className="mb-6 flex items-center justify-between">
+        <span className="text-sm font-medium text-slate-400">
           {year}年度 {semester === 'spring' ? '春学期' : '秋学期'}
         </span>
-        <Link href="/timetable">
+        <Link href="/timetable" className="text-sm font-semibold text-[#2785bf] transition-colors hover:text-blue-700">
           時間割ページへ →
         </Link>
       </div>
@@ -58,12 +64,12 @@ export default function TimetableHomeSummary() {
           <colgroup>
             {/* 時限列 */}
             <col className="w-[1.8rem]" />
-            {HOME_DAYS.map((_, i) => <col key={i} />)}
+            {DAYS.map((_, i) => <col key={i} />)}
           </colgroup>
           <thead>
             <tr>
               <th className="pb-1" />
-              {HOME_DAYS.map((day, i) => (
+              {DAYS.map((day, i) => (
                 <th
                   key={i}
                   className={[
@@ -87,29 +93,29 @@ export default function TimetableHomeSummary() {
                   <span className="text-[0.72rem] font-extrabold text-gray-600">{period}</span>
                 </td>
 
-                {HOME_DAYS.map((_, day) => {
+                {DAYS.map((_, day) => {
                   const entry = entryMap.get(`${day}-${period}`)
                   const isToday = todayDow === day
                   return (
-                    <td key={day} className="border-2 border-[#b8c2cc] p-[3px]">
+                    <td key={day} className="p-[3px]">
                       {loading ? (
-                        <div className="h-full min-h-[2.2rem] animate-pulse rounded bg-gray-100" />
+                        <div className="h-full min-h-[3.5rem] animate-pulse rounded-xl bg-slate-100" />
                       ) : entry ? (
                         <div
                           className={[
-                            'flex h-full min-h-[2.2rem] flex-col justify-center overflow-hidden rounded-xl px-1.5 py-1',
-                            isToday ? 'ring-1 ring-blue-400/40' : '',
+                            'flex h-full min-h-[3.5rem] flex-col justify-center overflow-hidden rounded-xl px-1.5 py-1',
+                            isToday ? 'ring-2 ring-blue-300/50' : '',
                           ].join(' ')}
                           style={{
-                            backgroundColor: entry.color ? entry.color + '22' : 'rgba(255,255,255,0.06)',
-                            borderLeft: `2px solid ${entry.color ?? '#94a3b8'}`,
+                            backgroundColor: entry.color ? entry.color + '25' : '#f1f5f9',
+                            color: entry.color ? entry.color : '#334155'
                           }}
                         >
-                          <span className="line-clamp-2 text-[0.68rem] font-extrabold leading-tight text-[#3e4650]">
+                          <span className="line-clamp-2 text-[0.68rem] font-extrabold leading-tight">
                             {entry.subject}
                           </span>
                           {entry.classroom && (
-                            <span className="truncate text-[0.6rem] font-semibold leading-tight text-gray-500">
+                            <span className="mt-0.5 truncate text-[0.6rem] font-medium leading-tight opacity-80">
                               {entry.classroom}
                             </span>
                           )}
@@ -117,15 +123,10 @@ export default function TimetableHomeSummary() {
                       ) : (
                         <div
                           className={[
-                            'relative h-full min-h-[2.2rem]',
-                            isToday ? 'bg-[#eefbfa]' : 'bg-white',
+                            'h-full min-h-[3.5rem] rounded-xl border border-slate-200/60',
+                            isToday ? 'bg-[#f4f9fd]' : 'bg-transparent',
                           ].join(' ')}
-                        >
-                          <span
-                            className="absolute left-1 top-1 h-2.5 w-2.5 rounded-full ring-1 ring-white"
-                            style={{ backgroundColor: DOT_COLORS[(day + period - 1) % DOT_COLORS.length] }}
-                          />
-                        </div>
+                        />
                       )}
                     </td>
                   )

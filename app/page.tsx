@@ -246,7 +246,7 @@ export default function Home() {
                             alt={app.name}
                             width={52}
                             height={52}
-                            className="h-[52px] w-[52px] rounded-full border-2 border-white bg-white object-contain"
+                            className="h-[52px] w-[52px] rounded-xl border-2 border-white bg-white object-contain"
                           />
                         ) : (
                           <span className="text-xl font-bold text-gray-800">
@@ -268,9 +268,9 @@ export default function Home() {
               >
                 ⋁
               </button>
-              <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white">
+              {/* <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white">
                 +
-              </div>
+              </div> */}
             </div>
           </aside>
 
