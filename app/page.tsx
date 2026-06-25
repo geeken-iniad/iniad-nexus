@@ -4,7 +4,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import LogoutButton from "./components/LogoutButton";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
 
@@ -15,11 +15,36 @@ type AppLink = {
   icon: string;
 };
 
+type CustomLink = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+type DisplayAppLink = AppLink & {
+  id: string;
+};
+
 const VISIBLE_APP_COUNT = 4;
 const ITEM_STEP_PX = 64;
+const DEFAULT_CUSTOM_LINK_COLOR = "bg-white";
 const notices = [
   { date: "", title: "～開発中～完成をお待ちください", isNew: true },
 ];
+
+const createCustomLinkId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+const isValidHttpUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
 
 type HomeUser = {
   email?: string | null;
@@ -39,6 +64,281 @@ function UserIcon() {
   );
 }
 
+type CustomLinkModalProps = {
+  customLinks: CustomLink[];
+  onAdd: (link: Omit<CustomLink, "id">) => void;
+  onUpdate: (id: string, link: Omit<CustomLink, "id">) => void;
+  onDelete: (id: string) => void;
+  onMove: (id: string, direction: "up" | "down") => void;
+  onClose: () => void;
+};
+
+function CustomLinkModal({
+  customLinks,
+  onAdd,
+  onUpdate,
+  onDelete,
+  onMove,
+  onClose,
+}: CustomLinkModalProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const modalRef = useRef<HTMLElement | null>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    nameInputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !modalRef.current) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+
+      if (focusableElements.length === 0) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+
+      if (!activeElement || !modalRef.current.contains(activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? lastElement : firstElement).focus();
+        return;
+      }
+
+      if (event.shiftKey && activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+
+      if (!event.shiftKey && activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  const resetForm = () => {
+    setEditingId(null);
+    setName("");
+    setUrl("");
+    setError(null);
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedName = name.trim();
+    const trimmedUrl = url.trim();
+
+    if (!trimmedName) {
+      setError("名前を入力してください");
+      return;
+    }
+
+    if (!trimmedUrl) {
+      setError("URLを入力してください");
+      return;
+    }
+
+    if (!isValidHttpUrl(trimmedUrl)) {
+      setError("http:// または https:// で始まるURLを入力してください");
+      return;
+    }
+
+    if (editingId) {
+      onUpdate(editingId, { name: trimmedName, url: trimmedUrl });
+    } else {
+      onAdd({ name: trimmedName, url: trimmedUrl });
+    }
+
+    resetForm();
+    nameInputRef.current?.focus();
+  };
+
+  const handleEdit = (link: CustomLink) => {
+    setEditingId(link.id);
+    setName(link.name);
+    setUrl(link.url);
+    setError(null);
+    nameInputRef.current?.focus();
+  };
+
+  const handleDelete = (id: string) => {
+    onDelete(id);
+    if (editingId === id) {
+      resetForm();
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="custom-link-modal-title"
+    >
+      <section ref={modalRef} className="max-h-[88vh] w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+          <div>
+            <h2 id="custom-link-modal-title" className="text-base font-bold text-slate-800">
+              カスタムリンク
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="カスタムリンク管理を閉じる"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-2xl leading-none text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="max-h-[calc(88vh-76px)] space-y-5 overflow-y-auto px-5 py-5">
+          <form onSubmit={handleSubmit} className="space-y-3 rounded-2xl bg-slate-50 p-4">
+            <div>
+              <label htmlFor="custom-link-name" className="mb-1 block text-xs font-semibold text-slate-500">
+                名前
+              </label>
+              <input
+                ref={nameInputRef}
+                id="custom-link-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "custom-link-form-error" : undefined}
+                className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="例: 大学ポータル"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="custom-link-url" className="mb-1 block text-xs font-semibold text-slate-500">
+                URL
+              </label>
+              <input
+                id="custom-link-url"
+                type="url"
+                inputMode="url"
+                value={url}
+                onChange={(event) => setUrl(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "custom-link-form-error" : undefined}
+                className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="https://example.com"
+              />
+            </div>
+
+            {error && (
+              <p id="custom-link-form-error" role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-500">
+                {error}
+              </p>
+            )}
+
+            <div className="flex gap-2 pt-1">
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="min-h-11 rounded-lg px-4 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                >
+                  キャンセル
+                </button>
+              )}
+              <button
+                type="submit"
+                className="ml-auto min-h-11 rounded-lg bg-blue-500 px-5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+              >
+                {editingId ? "反映" : "追加"}
+              </button>
+            </div>
+          </form>
+
+          <div>
+            <h3 className="text-xs font-bold text-slate-500">登録済みリンク</h3>
+            {customLinks.length === 0 ? (
+              <p className="mt-2 rounded-2xl bg-slate-50 px-4 py-5 text-center text-sm text-slate-400">
+                まだリンクはありません。
+              </p>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {customLinks.map((link, index) => (
+                  <li key={link.id} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-slate-800">{link.name}</p>
+                      <p className="truncate text-xs text-slate-400">{link.url}</p>
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onMove(link.id, "up")}
+                        disabled={index === 0}
+                        aria-label={`${link.name}を上へ移動`}
+                        className="flex min-h-11 items-center justify-center rounded-lg bg-slate-50 text-sm font-bold text-slate-500 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onMove(link.id, "down")}
+                        disabled={index === customLinks.length - 1}
+                        aria-label={`${link.name}を下へ移動`}
+                        className="flex min-h-11 items-center justify-center rounded-lg bg-slate-50 text-sm font-bold text-slate-500 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(link)}
+                        aria-label={`${link.name}を編集`}
+                        className="min-h-11 rounded-lg bg-blue-50 px-2 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                      >
+                        編集
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(link.id)}
+                        aria-label={`${link.name}を削除`}
+                        className="min-h-11 rounded-lg bg-red-50 px-2 text-xs font-bold text-red-500 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function Home() {
   const apps: AppLink[] = [
     { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "/img/ACE.png" },
@@ -55,10 +355,24 @@ export default function Home() {
   ];
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
+  const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [scrollIndex,  setScrollIndex]  = useState(0);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isCustomLinkModalOpen, setIsCustomLinkModalOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const customLinkButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const appLinks: DisplayAppLink[] = [
+    ...apps.map((app) => ({ ...app, id: `fixed-${app.name}` })),
+    ...customLinks.map((link) => ({
+      ...link,
+      color: DEFAULT_CUSTOM_LINK_COLOR,
+      icon: "",
+    })),
+  ];
+
+  const maxScrollIndex = Math.max(0, appLinks.length - VISIBLE_APP_COUNT);
 
   useEffect(() => {
     fetch("/api/calendar-user")
@@ -88,7 +402,39 @@ export default function Home() {
     };
   }, []);
 
-  const maxScrollIndex = Math.max(0, apps.length - VISIBLE_APP_COUNT);
+  const visibleScrollIndex = Math.min(scrollIndex, maxScrollIndex);
+
+  const handleAddCustomLink = (link: Omit<CustomLink, "id">) => {
+    setCustomLinks((current) => [...current, { id: createCustomLinkId(), ...link }]);
+  };
+
+  const handleUpdateCustomLink = (id: string, link: Omit<CustomLink, "id">) => {
+    setCustomLinks((current) => current.map((item) => (item.id === id ? { ...item, ...link } : item)));
+  };
+
+  const handleDeleteCustomLink = (id: string) => {
+    setCustomLinks((current) => current.filter((item) => item.id !== id));
+  };
+
+  const handleMoveCustomLink = (id: string, direction: "up" | "down") => {
+    setCustomLinks((current) => {
+      const currentIndex = current.findIndex((item) => item.id === id);
+      const nextIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+      if (currentIndex < 0 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+
+      const next = [...current];
+      [next[currentIndex], next[nextIndex]] = [next[nextIndex], next[currentIndex]];
+      return next;
+    });
+  };
+
+  const handleCloseCustomLinkModal = () => {
+    setIsCustomLinkModalOpen(false);
+    requestAnimationFrame(() => customLinkButtonRef.current?.focus());
+  };
 
   const userName =
     supabaseUser?.user_metadata?.full_name ??
@@ -217,8 +563,8 @@ export default function Home() {
             <div className="flex w-full flex-col gap-2">
               <button
                 type="button"
-                onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
-                disabled={scrollIndex === 0}
+                onClick={() => setScrollIndex((i) => Math.max(0, Math.min(i, maxScrollIndex) - 1))}
+                disabled={visibleScrollIndex === 0}
                 className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
                 aria-label="上へスクロール"
               >
@@ -228,16 +574,17 @@ export default function Home() {
               <div className="w-full overflow-hidden" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
                 <div
                   className="flex flex-col items-center transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)` }}
+                  style={{ transform: `translateY(-${visibleScrollIndex * ITEM_STEP_PX}px)` }}
                 >
                   <div className="flex flex-col gap-3">
-                    {apps.map((app) => (
+                    {appLinks.map((app) => (
                       <a
-                        key={app.name}
+                        key={app.id}
                         href={app.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={app.name}
+                        aria-label={app.name}
                         className="flex h-[52px] w-[52px] shrink-0 items-center justify-center transition-transform hover:scale-110"
                       >
                         {app.icon ? (
@@ -249,7 +596,7 @@ export default function Home() {
                             className="h-[52px] w-[52px] rounded-xl border-2 border-white bg-white object-contain"
                           />
                         ) : (
-                          <span className="text-xl font-bold text-gray-800">
+                          <span className={`flex h-[52px] w-[52px] items-center justify-center rounded-xl border-2 border-white ${app.color} text-xl font-bold text-[#247fc1] shadow-sm`}>
                             {app.name.charAt(0)}
                           </span>
                         )}
@@ -261,18 +608,35 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
-                disabled={scrollIndex === maxScrollIndex}
+                onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, Math.min(i, maxScrollIndex) + 1))}
+                disabled={visibleScrollIndex === maxScrollIndex}
                 className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
                 aria-label="下へスクロール"
               >
                 ⋁
               </button>
-              {/* <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white">
+              <button
+                ref={customLinkButtonRef}
+                type="button"
+                onClick={() => setIsCustomLinkModalOpen(true)}
+                aria-label="カスタムリンクを管理"
+                className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#79bdea]"
+              >
                 +
-              </div> */}
+              </button>
             </div>
           </aside>
+
+          {isCustomLinkModalOpen && (
+            <CustomLinkModal
+              customLinks={customLinks}
+              onAdd={handleAddCustomLink}
+              onUpdate={handleUpdateCustomLink}
+              onDelete={handleDeleteCustomLink}
+              onMove={handleMoveCustomLink}
+              onClose={handleCloseCustomLinkModal}
+            />
+          )}
 
           <section className="flex flex-1 flex-col gap-8 px-[clamp(24px,5vw,80px)] py-[clamp(20px,4vw,56px)] md:flex-row md:items-start md:gap-[clamp(44px,8vw,140px)]">
             <div className="h-[clamp(242px,48vw,620px)] w-full shrink-0 md:w-[clamp(340px,52vw,760px)]">
