@@ -208,8 +208,8 @@ export default function TimetableGrid() {
       )}
 
       {/* グリッド */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm bg-white flex-1 min-h-0">
-        <table className="w-full border-collapse table-fixed min-w-[340px] sm:min-w-[560px] h-full">
+      <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm bg-white flex-1 min-h-0">
+        <table className="w-full border-collapse table-fixed h-full">
           <colgroup>
             <col className="w-[2.2rem] sm:w-[3.5rem]" />
             {DAYS.map((_, i) => <col key={i} />)}

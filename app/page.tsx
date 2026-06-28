@@ -104,30 +104,30 @@ export default function Home() {
   const userAvatar = supabaseUser?.user_metadata?.avatar_url;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#d7eadc] via-[#c9e9e6] to-[#17c1ce] p-[clamp(12px,3vw,32px)] text-[#32323b]">
-      <div className="mx-auto flex min-h-[calc(100vh-clamp(24px,6vw,64px))] w-full max-w-[1180px] flex-col overflow-hidden rounded-[28px] bg-white/20 shadow-[0_24px_70px_-36px_rgba(25,70,91,0.65)] backdrop-blur-sm">
-        <header className="relative z-10 m-4 flex h-[clamp(64px,7vw,84px)] items-center justify-between rounded-xl bg-white/70 px-[clamp(12px,2.5vw,28px)] shadow-sm backdrop-blur-md">
-          <div className="flex items-center gap-3 sm:gap-5">
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-[#e0f4eb] shadow-[0_6px_14px_-6px_rgba(46,100,130,0.55)] sm:h-16 sm:w-16">
+    <main className="min-h-screen bg-gradient-to-br from-[#d7eadc] via-[#c9e9e6] to-[#17c1ce] p-2 text-[#32323b] sm:p-[clamp(12px,3vw,32px)]">
+      <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-[1180px] flex-col overflow-hidden rounded-[22px] bg-white/20 shadow-[0_24px_70px_-36px_rgba(25,70,91,0.65)] backdrop-blur-sm sm:min-h-[calc(100vh-clamp(24px,6vw,64px))] sm:rounded-[28px]">
+        <header className="relative z-10 m-2 flex min-h-16 items-center justify-between rounded-xl bg-white/70 px-3 py-2 shadow-sm backdrop-blur-md sm:m-4 sm:h-[clamp(64px,7vw,84px)] sm:px-[clamp(12px,2.5vw,28px)] sm:py-0 portrait:min-[700px]:h-[clamp(72px,8vw,96px)] portrait:min-[700px]:px-[clamp(14px,2.8vw,32px)]">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-[#e0f4eb] shadow-[0_6px_14px_-6px_rgba(46,100,130,0.55)] sm:h-16 sm:w-16 portrait:min-[700px]:h-[72px] portrait:min-[700px]:w-[72px]">
               <Image
                 src="/INIAD-nexus_icon.webp"
                 alt="INIAD NEXUS ロゴ"
                 width={66}
                 height={66}
-                className="h-12 w-12 rounded-lg object-contain sm:h-[58px] sm:w-[58px]"
+                className="h-10 w-10 rounded-lg object-contain sm:h-[58px] sm:w-[58px] portrait:min-[700px]:h-16 portrait:min-[700px]:w-16"
                 priority
               />
             </div>
             <div className="hidden leading-tight sm:block">
-              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">INIAD Nexus</p>
-              <h1 className="text-xl font-extrabold text-[#27323a]">Home</h1>
+              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400 portrait:min-[700px]:text-xs">INIAD Nexus</p>
+              <h1 className="text-xl font-extrabold text-[#27323a] portrait:min-[700px]:text-2xl">Home</h1>
             </div>
             <button
               type="button"
               onClick={() => setIsNoticeOpen((current) => !current)}
               aria-label="おしらせを開く"
               aria-expanded={isNoticeOpen}
-              className="relative flex h-12 w-12 items-center justify-center rounded-full bg-blue-700 text-white shadow-sm transition-transform hover:scale-105 sm:h-[52px] sm:w-[52px]"
+              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-700 text-white shadow-sm transition-transform hover:scale-105 sm:h-[52px] sm:w-[52px] portrait:min-[700px]:h-[58px] portrait:min-[700px]:w-[58px]"
             >
               <MegaphoneIcon />
               <span className="absolute -left-0.5 -top-0.5 h-3.5 w-3.5 rounded-full bg-red-500" />
@@ -137,7 +137,7 @@ export default function Home() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/inquiry_form"
-              className="hidden rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold text-[#247fc1] shadow-sm transition-colors hover:bg-white sm:inline-block sm:px-4 sm:py-2 sm:text-sm"
+              className="hidden rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold text-[#247fc1] shadow-sm transition-colors hover:bg-white sm:inline-block sm:px-4 sm:py-2 sm:text-sm portrait:min-[700px]:px-5 portrait:min-[700px]:py-2.5 portrait:min-[700px]:text-base"
             >
               お問い合わせはこちら
             </Link>
@@ -147,7 +147,7 @@ export default function Home() {
                 onClick={() => setIsAccountMenuOpen((current) => !current)}
                 aria-label="アカウントメニューを開く"
                 aria-expanded={isAccountMenuOpen}
-                className="flex min-w-[128px] items-center gap-3 rounded-full bg-white/85 px-2.5 py-1.5 shadow-sm transition-transform hover:scale-105 sm:min-w-[174px] sm:px-4"
+                className="flex min-w-[112px] max-w-[42vw] items-center gap-2 rounded-full bg-white/85 px-2 py-1.5 shadow-sm transition-transform hover:scale-105 sm:min-w-[174px] sm:max-w-none sm:gap-3 sm:px-4 portrait:min-[700px]:min-w-[210px] portrait:min-[700px]:py-2"
               >
                 {userAvatar ? (
                   <Image
@@ -155,14 +155,14 @@ export default function Home() {
                     alt={userName}
                     width={40}
                     height={40}
-                    className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9"
+                    className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9 portrait:min-[700px]:h-11 portrait:min-[700px]:w-11"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#18b46b] text-white sm:h-9 sm:w-9">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#18b46b] text-white sm:h-9 sm:w-9 portrait:min-[700px]:h-11 portrait:min-[700px]:w-11">
                     <UserIcon />
                   </div>
                 )}
-                <span className="min-w-0 truncate text-sm font-extrabold text-[#2d3138] sm:text-base">
+                <span className="min-w-0 truncate text-xs font-extrabold text-[#2d3138] sm:text-base portrait:min-[700px]:text-lg">
                   {userName}
                 </span>
               </button>
@@ -224,9 +224,9 @@ export default function Home() {
           </div>
         )}
 
-        <div className="flex flex-1 gap-4 px-4 pb-4">
-          <aside className="flex w-[72px] shrink-0 items-center justify-center rounded-2xl bg-white/45 px-2 py-4 backdrop-blur-sm sm:w-[84px]">
-            <div className="flex max-h-[calc(100vh-160px)] w-full flex-col items-center gap-3 overflow-y-auto">
+        <div className="flex flex-1 flex-col gap-3 px-2 pb-2 md:flex-row md:gap-4 md:px-4 md:pb-4">
+          <aside className="order-2 flex w-full shrink-0 items-center justify-center rounded-2xl bg-white/45 px-3 py-2 backdrop-blur-sm md:order-1 md:w-[84px] md:px-2 md:py-4 portrait:min-[700px]:w-[104px] portrait:min-[700px]:px-3">
+            <div className="flex w-full flex-row items-center justify-start gap-3 overflow-x-auto md:max-h-[calc(100vh-160px)] md:flex-col md:justify-center md:overflow-x-visible md:overflow-y-auto">
               {apps.map((app) => (
                 <a
                   key={app.name}
@@ -234,7 +234,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   title={app.name}
-                  className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl bg-white/85 shadow-sm transition-transform hover:scale-110"
+                  className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl bg-white/85 shadow-sm transition-transform hover:scale-110 portrait:min-[700px]:h-[64px] portrait:min-[700px]:w-[64px]"
                 >
                   {app.icon ? (
                     <Image
@@ -242,7 +242,7 @@ export default function Home() {
                       alt={app.name}
                       width={52}
                       height={52}
-                      className="h-[48px] w-[48px] rounded-lg object-contain"
+                      className="h-[48px] w-[48px] rounded-lg object-contain portrait:min-[700px]:h-[60px] portrait:min-[700px]:w-[60px]"
                     />
                   ) : (
                     <span className="text-xl font-bold text-gray-800">
@@ -254,9 +254,9 @@ export default function Home() {
             </div>
           </aside>
 
-          <section className="flex flex-1 items-start px-[clamp(8px,3vw,36px)] py-[clamp(8px,3vw,36px)]">
-            <div className="w-full max-w-[980px]">
-              <div className="min-h-[clamp(560px,72vh,780px)] rounded-[24px] bg-white/62 p-[clamp(14px,2.8vw,28px)] shadow-sm backdrop-blur-md">
+          <section className="order-1 flex flex-1 items-start px-0 py-1 md:order-2 md:px-[clamp(8px,3vw,36px)] md:py-[clamp(8px,3vw,36px)] portrait:min-[700px]:px-2 portrait:min-[700px]:py-2">
+            <div className="w-full max-w-[980px] portrait:min-[700px]:max-w-none">
+              <div className="min-h-[clamp(560px,calc(100dvh-172px),780px)] rounded-[20px] bg-white/62 p-3 shadow-sm backdrop-blur-md sm:min-h-[min(820px,calc(100vh-190px))] sm:p-[clamp(14px,2.8vw,28px)] md:rounded-[24px] portrait:min-[700px]:min-h-[min(860px,calc(100vh-190px))] portrait:min-[700px]:p-[clamp(18px,3.2vw,34px)] portrait:min-[700px]:rounded-[28px] landscape:md:min-h-[clamp(560px,72vh,780px)]">
                 <TimetableHomeSummary />
               </div>
             </div>
