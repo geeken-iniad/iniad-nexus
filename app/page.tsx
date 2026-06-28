@@ -15,8 +15,6 @@ type AppLink = {
   icon: string;
 };
 
-const VISIBLE_APP_COUNT = 4;
-const ITEM_STEP_PX = 64;
 const notices = [
   { date: "", title: "～開発中～完成をお待ちください", isNew: true },
 ];
@@ -39,6 +37,16 @@ function UserIcon() {
   );
 }
 
+function MegaphoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-7 w-7 fill-none stroke-current stroke-[2]">
+      <path d="M4 11.5v2.8a2 2 0 0 0 2 2h1.8l1.4 3.2a1.6 1.6 0 0 0 1.5.9h.9a1 1 0 0 0 .9-1.4l-1.2-2.7" />
+      <path d="M7 11.4 18.3 6.2a1.1 1.1 0 0 1 1.6 1v11.5a1.1 1.1 0 0 1-1.6 1L7 14.4z" />
+      <path d="M20 9.2a3.4 3.4 0 0 1 0 6.6" />
+    </svg>
+  );
+}
+
 export default function Home() {
   const apps: AppLink[] = [
     { name: "Toyo-net ACE", url: "https://www.ace.toyo.ac.jp/",      color: "bg-blue-600",   icon: "/img/ACE.png" },
@@ -55,7 +63,6 @@ export default function Home() {
   ];
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
-  const [scrollIndex,  setScrollIndex]  = useState(0);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
@@ -88,8 +95,6 @@ export default function Home() {
     };
   }, []);
 
-  const maxScrollIndex = Math.max(0, apps.length - VISIBLE_APP_COUNT);
-
   const userName =
     supabaseUser?.user_metadata?.full_name ??
     supabaseUser?.user_metadata?.name ??
@@ -99,28 +104,32 @@ export default function Home() {
   const userAvatar = supabaseUser?.user_metadata?.avatar_url;
 
   return (
-    <main className="min-h-screen bg-white text-[#32323b]">
-      <div className="min-h-screen w-full overflow-hidden bg-white">
-        <header className="relative z-10 flex h-[clamp(68px,8vw,96px)] items-center justify-between bg-[#eaf7fb] px-[clamp(16px,2.5vw,36px)] shadow-[0_14px_22px_-12px_rgba(145,112,205,0.32)]">
-          <div className="flex items-center gap-5">
-            <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-2xl border-2 border-white bg-[#e0f4eb] shadow-[0_6px_14px_-6px_rgba(46,100,130,0.55)]">
+    <main className="min-h-screen bg-gradient-to-br from-[#d7eadc] via-[#c9e9e6] to-[#17c1ce] p-[clamp(12px,3vw,32px)] text-[#32323b]">
+      <div className="mx-auto flex min-h-[calc(100vh-clamp(24px,6vw,64px))] w-full max-w-[1180px] flex-col overflow-hidden rounded-[28px] bg-white/20 shadow-[0_24px_70px_-36px_rgba(25,70,91,0.65)] backdrop-blur-sm">
+        <header className="relative z-10 m-4 flex h-[clamp(64px,7vw,84px)] items-center justify-between rounded-xl bg-white/70 px-[clamp(12px,2.5vw,28px)] shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-[#e0f4eb] shadow-[0_6px_14px_-6px_rgba(46,100,130,0.55)] sm:h-16 sm:w-16">
               <Image
                 src="/INIAD-nexus_icon.webp"
                 alt="INIAD NEXUS ロゴ"
                 width={66}
                 height={66}
-                className="h-[66px] w-[66px] rounded-xl object-contain"
+                className="h-12 w-12 rounded-lg object-contain sm:h-[58px] sm:w-[58px]"
                 priority
               />
+            </div>
+            <div className="hidden leading-tight sm:block">
+              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">INIAD Nexus</p>
+              <h1 className="text-xl font-extrabold text-[#27323a]">Home</h1>
             </div>
             <button
               type="button"
               onClick={() => setIsNoticeOpen((current) => !current)}
               aria-label="おしらせを開く"
               aria-expanded={isNoticeOpen}
-              className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#247fc1] text-xl text-white transition-transform hover:scale-105"
+              className="relative flex h-12 w-12 items-center justify-center rounded-full bg-blue-700 text-white shadow-sm transition-transform hover:scale-105 sm:h-[52px] sm:w-[52px]"
             >
-              ♘
+              <MegaphoneIcon />
               <span className="absolute -left-0.5 -top-0.5 h-3.5 w-3.5 rounded-full bg-red-500" />
             </button>
           </div>
@@ -128,7 +137,7 @@ export default function Home() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/inquiry_form"
-              className="rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold text-[#247fc1] shadow-sm transition-colors hover:bg-white sm:px-4 sm:py-2 sm:text-sm"
+              className="hidden rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold text-[#247fc1] shadow-sm transition-colors hover:bg-white sm:inline-block sm:px-4 sm:py-2 sm:text-sm"
             >
               お問い合わせはこちら
             </Link>
@@ -138,7 +147,7 @@ export default function Home() {
                 onClick={() => setIsAccountMenuOpen((current) => !current)}
                 aria-label="アカウントメニューを開く"
                 aria-expanded={isAccountMenuOpen}
-                className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white bg-white/85 shadow-sm transition-transform hover:scale-105"
+                className="flex min-w-[128px] items-center gap-3 rounded-full bg-white/85 px-2.5 py-1.5 shadow-sm transition-transform hover:scale-105 sm:min-w-[174px] sm:px-4"
               >
                 {userAvatar ? (
                   <Image
@@ -146,13 +155,16 @@ export default function Home() {
                     alt={userName}
                     width={40}
                     height={40}
-                    className="h-10 w-10 rounded-full object-cover"
+                    className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-[#ff5961] text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#18b46b] text-white sm:h-9 sm:w-9">
                     <UserIcon />
                   </div>
                 )}
+                <span className="min-w-0 truncate text-sm font-extrabold text-[#2d3138] sm:text-base">
+                  {userName}
+                </span>
               </button>
 
               <div
@@ -212,85 +224,41 @@ export default function Home() {
           </div>
         )}
 
-        <div className="flex min-h-[calc(100vh-clamp(68px,8vw,96px))]">
-          <aside className="flex w-[clamp(80px,9vw,120px)] shrink-0 items-center bg-gradient-to-b from-[#c7eef0] to-[#79bdea] px-3 py-2">
-            <div className="flex w-full flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
-                disabled={scrollIndex === 0}
-                className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
-                aria-label="上へスクロール"
-              >
-                ⋀
-              </button>
-
-              <div className="w-full overflow-hidden" style={{ height: VISIBLE_APP_COUNT * ITEM_STEP_PX }}>
-                <div
-                  className="flex flex-col items-center transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateY(-${scrollIndex * ITEM_STEP_PX}px)` }}
+        <div className="flex flex-1 gap-4 px-4 pb-4">
+          <aside className="flex w-[72px] shrink-0 items-center justify-center rounded-2xl bg-white/45 px-2 py-4 backdrop-blur-sm sm:w-[84px]">
+            <div className="flex max-h-[calc(100vh-160px)] w-full flex-col items-center gap-3 overflow-y-auto">
+              {apps.map((app) => (
+                <a
+                  key={app.name}
+                  href={app.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={app.name}
+                  className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl bg-white/85 shadow-sm transition-transform hover:scale-110"
                 >
-                  <div className="flex flex-col gap-3">
-                    {apps.map((app) => (
-                      <a
-                        key={app.name}
-                        href={app.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={app.name}
-                        className="flex h-[52px] w-[52px] shrink-0 items-center justify-center transition-transform hover:scale-110"
-                      >
-                        {app.icon ? (
-                          <Image
-                            src={app.icon}
-                            alt={app.name}
-                            width={52}
-                            height={52}
-                            className="h-[52px] w-[52px] rounded-xl border-2 border-white bg-white object-contain"
-                          />
-                        ) : (
-                          <span className="text-xl font-bold text-gray-800">
-                            {app.name.charAt(0)}
-                          </span>
-                        )}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setScrollIndex((i) => Math.min(maxScrollIndex, i + 1))}
-                disabled={scrollIndex === maxScrollIndex}
-                className="flex h-7 w-full justify-center rounded-full text-lg font-bold leading-6 text-white hover:bg-white/20 disabled:invisible"
-                aria-label="下へスクロール"
-              >
-                ⋁
-              </button>
-              {/* <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border-2 border-white pb-1 text-4xl font-light leading-none text-white">
-                +
-              </div> */}
+                  {app.icon ? (
+                    <Image
+                      src={app.icon}
+                      alt={app.name}
+                      width={52}
+                      height={52}
+                      className="h-[48px] w-[48px] rounded-lg object-contain"
+                    />
+                  ) : (
+                    <span className="text-xl font-bold text-gray-800">
+                      {app.name.charAt(0)}
+                    </span>
+                  )}
+                </a>
+              ))}
             </div>
           </aside>
 
-          <section className="flex flex-1 flex-col gap-8 px-[clamp(24px,5vw,80px)] py-[clamp(20px,4vw,56px)] md:flex-row md:items-start md:gap-[clamp(44px,8vw,140px)]">
-            <div className="h-[clamp(242px,48vw,620px)] w-full shrink-0 md:w-[clamp(340px,52vw,760px)]">
-              <TimetableHomeSummary />
-            </div>
-            <div className="flex flex-1 items-center justify-center gap-4 self-stretch md:flex-col md:gap-[clamp(28px,4vw,54px)]">
-              <Link
-                href="/timetable"
-                className="w-[clamp(140px,15vw,230px)] rounded-full bg-gradient-to-r from-[#d5f3e8] to-[#88c9f5] px-4 py-[clamp(11px,1.3vw,17px)] text-center text-[clamp(13px,1.15vw,17px)] font-bold transition-transform hover:scale-105"
-              >
-                授業登録
-              </Link>
-              <Link
-                href="/timetable"
-                className="w-[clamp(140px,15vw,230px)] rounded-full bg-[#2785bf] px-4 py-[clamp(11px,1.3vw,17px)] text-center text-[clamp(13px,1.15vw,17px)] font-bold text-white transition-transform hover:scale-105"
-              >
-                予定登録
-              </Link>
+          <section className="flex flex-1 items-start px-[clamp(8px,3vw,36px)] py-[clamp(8px,3vw,36px)]">
+            <div className="w-full max-w-[980px]">
+              <div className="min-h-[clamp(560px,72vh,780px)] rounded-[24px] bg-white/62 p-[clamp(14px,2.8vw,28px)] shadow-sm backdrop-blur-md">
+                <TimetableHomeSummary />
+              </div>
             </div>
           </section>
         </div>

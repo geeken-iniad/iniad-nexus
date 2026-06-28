@@ -42,24 +42,24 @@ export default function TimetableHomeSummary() {
 
   return (
     
-    <div className="flex w-full flex-col rounded-[2rem] bg-white/80 p-5 shadow-sm backdrop-blur-md md:p-8">
+    <div className="relative flex min-h-[clamp(520px,66vh,720px)] w-full flex-col rounded-[1.6rem] bg-[#eef8f5]/80 p-5 shadow-sm backdrop-blur-md md:p-7">
+      <div className="absolute left-5 top-5 z-10 md:left-7 md:top-7">
       {/* サブヘッダー */}
       <div className="mb-1 text-[10px] font-bold tracking-[0.15em] text-slate-400">
         SCHEDULE
       </div>
-      <h2 className="mb-2 text-2xl font-extrabold text-slate-800">時間割</h2>
-
-      <div className="mb-6 flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-400">
-          {year}年度 {semester === 'spring' ? '春学期' : '秋学期'}
-        </span>
-        <Link href="/timetable" className="text-sm font-semibold text-[#2785bf] transition-colors hover:text-blue-700">
-          時間割ページへ →
-        </Link>
+      <h2 className="text-2xl font-extrabold text-slate-800">時間割</h2>
+      <Link
+        href="/timetable"
+        className="mt-3 inline-flex w-fit rounded-lg bg-[#58d7d2] px-3 py-1.5 text-base font-bold leading-none text-[#2d6770] shadow-sm transition-transform hover:scale-105"
+      >
+        +登録
+      </Link>
       </div>
 
       {/* グリッド */}
-      <div className="min-h-0 flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 justify-end overflow-hidden">
+        <div className="h-full w-[min(86%,820px)]">
         <table className="h-full w-full table-fixed border-collapse">
           <colgroup>
             {/* 時限列 */}
@@ -73,7 +73,7 @@ export default function TimetableHomeSummary() {
                 <th
                   key={i}
                   className={[
-                    'pb-2 text-center text-[0.78rem] font-extrabold',
+                    'pb-2 text-center text-[0.82rem] font-extrabold',
                     todayDow === i ? 'text-[#2785bf]' : 'text-[#44444d]',
                   ].join(' ')}
                 >
@@ -99,11 +99,11 @@ export default function TimetableHomeSummary() {
                   return (
                     <td key={day} className="p-[3px]">
                       {loading ? (
-                        <div className="h-full min-h-[3.5rem] animate-pulse rounded-xl bg-slate-100" />
-                      ) : entry ? (
-                        <div
-                          className={[
-                            'flex h-full min-h-[3.5rem] flex-col justify-center overflow-hidden rounded-xl px-1.5 py-1',
+                      <div className="h-full min-h-[clamp(4.9rem,9vh,6.4rem)] animate-pulse rounded-lg bg-white/60" />
+                    ) : entry ? (
+                      <div
+                        className={[
+                            'flex h-full min-h-[clamp(4.9rem,9vh,6.4rem)] flex-col justify-center overflow-hidden rounded-lg border border-white/70 px-1.5 py-1 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)]',
                             isToday ? 'ring-2 ring-blue-300/50' : '',
                           ].join(' ')}
                           style={{
@@ -123,8 +123,8 @@ export default function TimetableHomeSummary() {
                       ) : (
                         <div
                           className={[
-                            'h-full min-h-[3.5rem] rounded-xl border border-slate-200/60',
-                            isToday ? 'bg-[#f4f9fd]' : 'bg-transparent',
+                            'h-full min-h-[clamp(4.9rem,9vh,6.4rem)] rounded-lg border border-slate-200/70 bg-white/48 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)]',
+                            isToday ? 'bg-[#ecfbfa]' : '',
                           ].join(' ')}
                         />
                       )}
@@ -135,6 +135,7 @@ export default function TimetableHomeSummary() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )
