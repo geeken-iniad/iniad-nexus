@@ -1,5 +1,5 @@
-// app/components/UserCalendar.tsx
-export default function UserCalendar() {
+// app/components/UserSchedule.tsx
+export default function UserSchedule() {
     return (
     <div className="w-full h-[700px]">
         <iframe

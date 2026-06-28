@@ -8,32 +8,40 @@ https://iniad-nexus.vercel.app/
 
 ## 開発の始め方
 
-````bash
+```bash
 # 1. 必要なライブラリを入れる（最初に1回だけ）
 npm install
 
 # 2. 開発サーバーを起動する
 npm run dev
+```
 
-作業の進め方
+## 作業の進め方
 
-1.作業を始める時（最新にする）
-#まず main ブランチに戻り、最新の状態を取り込む
+### 1. 作業を始める時（最新にする）
 
+まず main ブランチに戻り、最新の状態を取り込む。
+
+```bash
 git checkout main
 git pull origin main
 
 git checkout 自分のブランチ
 git merge main
+```
 
-2.機能ごとに作業用ブランチを作る
-#直接 main をいじらず別ブランチを変更する
+### 2. 機能ごとに作業用ブランチを作る
 
+直接 main をいじらず別ブランチを変更する。
+
+```bash
 git branch ブランチ名
 git checkout 自分のブランチ
+```
 
-3.PR作成
+### 3. PR作成
 
+```bash
 # 変更をステージング
 git add .
 
@@ -43,14 +51,16 @@ git commit -m "コミット内容"
 # GitHubにアップロード
 # ブランチ名は自分のいるブランチ名
 git push origin 自分のブランチ名
+```
 
+### 4. マージ (Pull Request)
 
-4.マージ (Pull Request)
 GitHubの画面を開き、「Compare & pull request」ボタンを押して、main に取り込んでもらう申請を出す
 ※PRは誰が通してもOK
 
-5.作業中に main が進んでしまった時
-PRを出そうとしたら main が更新されていたと時
+### 5. 作業中に main が進んでしまった時
+
+PRを出そうとしたら main が更新されていた時
 
 ```bash
 # 1. まず自分の今の作業をコミットして保存する
@@ -66,22 +76,22 @@ git checkout feat/自分のブランチ名
 
 # 4. 最新の main を自分のブランチに取り込む（合体）
 git merge main
-
+```
 
 ※ 手順4で コンフリクトと表示された場合 同じファイルの同じ行を、あなたと他の人が同時に編集しています。 VS Code上で「<<<< head」のような記号が出るので、どちらを残すか修正し、再度
 
+```bash
 git add .
 git commit
+```
 
 してください。
 
+コンフリクトがなければ、そのままアップロードする。
 
-#5. コンフリクトがなければ、そのままアップロード
-
+```bash
 git push origin 自分のブランチ名
-
-
-````
+```
 
 ## 技術スタック
 
