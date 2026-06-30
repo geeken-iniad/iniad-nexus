@@ -43,6 +43,11 @@ set
       else 'todo'
     end
   ),
+  done_at = case
+    when coalesce(nullif(status, ''), case when is_done then 'done' else null end) = 'done'
+      then coalesce(done_at, now())
+    else null
+  end,
   links = coalesce(links, '[]'::jsonb);
 
 -- 3. Make required fields explicit after backfill.
