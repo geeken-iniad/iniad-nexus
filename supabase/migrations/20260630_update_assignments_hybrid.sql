@@ -129,7 +129,7 @@ $$;
 -- 7. Indexes for common UI queries: deadline list, status tabs, term filters, timetable-linked views.
 create index if not exists idx_assignments_due_open
   on public.assignments (user_id, due_date)
-  where is_done = false;
+  where status <> 'done';
 
 create index if not exists idx_assignments_user_status
   on public.assignments (user_id, status);
@@ -180,15 +180,15 @@ create policy "assignments_delete_own"
   for delete
   using (auth.uid() = user_id);
 
--- 9. Keep done_at synced on both insert and update.
+-- 9. Keep done_at synced from status on both insert and update.
 create or replace function public.sync_assignment_done_at()
 returns trigger
 language plpgsql
 as $$
 begin
-  if new.is_done = true and (tg_op = 'INSERT' or old.is_done = false) then
+  if new.status = 'done' and (tg_op = 'INSERT' or old.status is distinct from 'done') then
     new.done_at := coalesce(new.done_at, now());
-  elsif new.is_done = false then
+  elsif new.status <> 'done' then
     new.done_at := null;
   end if;
 
@@ -202,5 +202,9 @@ create trigger trg_assignment_done_at
   before insert or update on public.assignments
   for each row
   execute function public.sync_assignment_done_at();
+
+-- 10. Remove the legacy boolean completion flag after status has been backfilled.
+alter table public.assignments
+  drop column if exists is_done;
 
 commit;

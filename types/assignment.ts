@@ -27,8 +27,7 @@ export interface Assignment {
   subject: string; // Subject name. Backfilled to a non-null value by migration.
   due_date: string; // Due datetime from the existing v3.2 schema.
   memo: string | null; // Existing free-form memo.
-  is_done: boolean; // Existing simple Todo completion flag.
-  done_at: string | null; // Synced by DB trigger when is_done changes.
+  done_at: string | null; // Synced by DB trigger when status changes to done.
   priority: AssignmentPriority; // Readable priority after migration.
   academic_year: number; // Academic year for term filtering.
   semester: SemesterType; // Term label reused from timetable types.
@@ -57,6 +56,5 @@ export interface AssignmentFilters {
   status?: AssignmentStatus;
   priority?: AssignmentPriority;
   subject?: string;
-  is_done?: boolean;
   timetable_entry_id?: string | null;
 }
