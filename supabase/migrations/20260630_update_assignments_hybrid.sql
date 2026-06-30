@@ -78,10 +78,13 @@ $$;
 alter table public.assignments
   alter column priority drop default,
   alter column priority type text
-    using case priority
-      when 1 then 'high'
-      when 2 then 'medium'
-      when 3 then 'low'
+    using case priority::text
+      when '1' then 'high'
+      when '2' then 'medium'
+      when '3' then 'low'
+      when 'high' then 'high'
+      when 'medium' then 'medium'
+      when 'low' then 'low'
       else 'medium'
     end,
   alter column priority set default 'medium',
