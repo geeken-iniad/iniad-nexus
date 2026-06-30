@@ -170,13 +170,35 @@ create policy "assignments_select_own"
 create policy "assignments_insert_own"
   on public.assignments
   for insert
-  with check (auth.uid() = user_id);
+  with check (
+    auth.uid() = user_id
+    and (
+      timetable_entry_id is null
+      or exists (
+        select 1
+        from public.timetable
+        where timetable.id = assignments.timetable_entry_id
+          and timetable.user_id = auth.uid()
+      )
+    )
+  );
 
 create policy "assignments_update_own"
   on public.assignments
   for update
   using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  with check (
+    auth.uid() = user_id
+    and (
+      timetable_entry_id is null
+      or exists (
+        select 1
+        from public.timetable
+        where timetable.id = assignments.timetable_entry_id
+          and timetable.user_id = auth.uid()
+      )
+    )
+  );
 
 create policy "assignments_delete_own"
   on public.assignments
