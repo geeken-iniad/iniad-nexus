@@ -216,9 +216,13 @@ returns trigger
 language plpgsql
 as $$
 begin
-  if new.status = 'done' and (tg_op = 'INSERT' or old.status is distinct from 'done') then
-    new.done_at := coalesce(new.done_at, now());
-  elsif new.status <> 'done' then
+  if new.status = 'done' then
+    if tg_op = 'UPDATE' and old.status = 'done' then
+      new.done_at := coalesce(old.done_at, now());
+    else
+      new.done_at := now();
+    end if;
+  else
     new.done_at := null;
   end if;
 
