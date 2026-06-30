@@ -44,9 +44,7 @@ export interface Assignment {
 export type AssignmentInsert = Omit<
   Assignment,
   "id" | "user_id" | "created_at" | "updated_at" | "done_at"
-> & {
-  done_at?: string | null; // Usually left to the database trigger.
-};
+>;
 
 export type AssignmentUpdate = Partial<AssignmentInsert>;
 
