@@ -38,7 +38,6 @@ export interface Assignment {
   submission_location: string | null; // LMS, URL, classroom, or other destination.
   status: AssignmentStatus; // Workflow status for task-like UI.
   links: AssignmentLink[]; // Structured related links.
-  note: string | null; // Private note separate from the existing memo.
   created_at: string; // Created timestamp.
   updated_at: string; // Updated timestamp.
 }
