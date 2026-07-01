@@ -48,6 +48,10 @@ export async function GET(request: Request) {
 
     // ここでログインしたユーザーのメールドメインを取得し、iniad.org のみ許可する
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.redirect(`${origin}/login?error=missing_user`)
+    }
+
     const email = user?.email ?? ''
     const emailDomain = email.split('@')[1] ?? ''
 
@@ -55,6 +59,19 @@ export async function GET(request: Request) {
       console.warn(`[Auth] Blocked login attempt from unauthorized domain: ${emailDomain}`)
       // 不正なドメインの場合はセッションを作成しないため、クッキーを付与していない別のリダイレクトを返す
       return NextResponse.redirect(`${origin}/login?error=unauthorized_domain`)
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        full_name: getUserMetadataString(user.user_metadata, 'full_name') ?? getUserMetadataString(user.user_metadata, 'name'),
+        avatar_url: getUserMetadataString(user.user_metadata, 'avatar_url'),
+        updated_at: new Date().toISOString(),
+      })
+
+    if (profileError) {
+      console.error('[Auth Callback Error] Profile upsert failed:', profileError.message)
     }
 
     return response
@@ -67,4 +84,9 @@ export async function GET(request: Request) {
     
     return NextResponse.redirect(`${origin}/login?error=server_crash&message=${encodedError}`)
   }
+}
+
+function getUserMetadataString(metadata: Record<string, unknown> | null | undefined, key: string): string | null {
+  const value = metadata?.[key]
+  return typeof value === 'string' && value.trim().length > 0 ? value : null
 }

@@ -7,6 +7,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import LogoutButton from "./components/LogoutButton";
 import TimetableHomeSummary from "./components/timetable/TimetableHomeSummary";
+import { getAvatarDisplayUrl } from "@/utils/supabase/avatar";
+import { fetchProfile } from "@/utils/supabase/profile";
+import type { Profile } from "@/types/profile";
 
 type AppLink = {
   name: string;
@@ -55,6 +58,7 @@ export default function Home() {
   ];
 
   const [supabaseUser, setSupabaseUser] = useState<HomeUser | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [scrollIndex,  setScrollIndex]  = useState(0);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -63,17 +67,23 @@ export default function Home() {
     fetch("/api/calendar-user")
       .then((res) => res.json())
       .then((data) => setSupabaseUser(data));
+
+    fetchProfile()
+      .then((data) => setProfile(data.profile))
+      .catch(() => setProfile(null));
   }, []);
 
   const maxScrollIndex = Math.max(0, apps.length - VISIBLE_APP_COUNT);
 
   const userName =
+    profile?.username ??
+    profile?.full_name ??
     supabaseUser?.user_metadata?.full_name ??
     supabaseUser?.user_metadata?.name ??
     supabaseUser?.email ??
     "User";
 
-  const userAvatar = supabaseUser?.user_metadata?.avatar_url;
+  const userAvatar = getAvatarDisplayUrl(profile?.avatar_url ?? supabaseUser?.user_metadata?.avatar_url);
 
   return (
     <main className="min-h-screen bg-white text-[#32323b]">
@@ -111,12 +121,11 @@ export default function Home() {
               className="flex items-center gap-3 rounded-full px-2 py-1 transition-colors hover:bg-white/55"
             >
               {userAvatar ? (
-                <Image
-                  src={userAvatar}
-                  alt={userName}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 rounded-full object-cover"
+                <div
+                  aria-label={userName}
+                  role="img"
+                  className="h-8 w-8 rounded-full bg-cover bg-center"
+                  style={{ backgroundImage: `url("${userAvatar}")` }}
                 />
               ) : (
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ff5961] text-white">
@@ -128,12 +137,19 @@ export default function Home() {
 
             <div
               className={[
-                "absolute right-0 top-full mt-2 w-36 origin-top overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
+                "absolute right-0 top-full mt-2 w-40 origin-top overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-all duration-200 ease-out",
                 isAccountMenuOpen
                   ? "translate-y-0 scale-y-100 opacity-100"
                   : "-translate-y-2 scale-y-0 pointer-events-none opacity-0",
               ].join(" ")}
             >
+              <Link
+                href="/profile"
+                className="block w-full px-4 py-3 text-center text-sm font-bold text-[#247fc1] transition-colors hover:bg-[#eef8fb]"
+                onClick={() => setIsAccountMenuOpen(false)}
+              >
+                プロフィール
+              </Link>
               <LogoutButton className="w-full px-4 py-3 text-center text-sm font-bold text-[#e0525e] transition-colors hover:bg-[#fff0f1]">
                 ログアウト
               </LogoutButton>
