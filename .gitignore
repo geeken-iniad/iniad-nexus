@@ -31,10 +31,8 @@ yarn-error.log*w
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env
-# 環境変数ファイルを無視
-.env.local
-.env.*.local
+.env*
+!.env.example
 
 # vercel
 .vercel
