@@ -143,7 +143,7 @@ export default function TimetableGrid() {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((v) => !v)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-slate-700 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm sm:text-base md:text-lg font-semibold text-slate-700 transition-colors"
           >
             <span>{selectedLabel}</span>
             <svg
@@ -159,7 +159,7 @@ export default function TimetableGrid() {
               {yearRange.map((year) => (
                 <div key={year}>
                   {/* 年度グループヘッダー */}
-                  <div className="px-3 pt-2.5 pb-1 text-[0.65rem] font-bold text-slate-400 tracking-wide border-t border-slate-50 first:border-t-0">
+                  <div className="px-3 pt-2.5 pb-1 text-xs sm:text-sm md:text-base font-bold text-slate-400 tracking-wide border-t border-slate-50 first:border-t-0">
                     {gradeLabel(year, effectiveEnrollmentYear)}
                   </div>
                   {/* 春・秋 */}
@@ -171,7 +171,7 @@ export default function TimetableGrid() {
                         key={sem}
                         onClick={() => handleSelect({ academic_year: year, semester: sem, isAfterGrad })}
                         className={[
-                          'w-full text-left px-5 py-2 text-xs font-medium transition-colors flex items-center justify-between',
+                          'w-full text-left px-5 py-2 md:py-2.5 text-sm sm:text-base md:text-lg font-medium transition-colors flex items-center justify-between',
                           isSelected
                             ? 'bg-blue-50 text-blue-600 font-semibold'
                             : isAfterGrad
@@ -181,9 +181,9 @@ export default function TimetableGrid() {
                       >
                         <span>
                           {sem === 'spring' ? '春学期' : '秋学期'}
-                          {isAfterGrad && <span className="ml-1.5 text-[0.6rem] text-slate-400">卒後</span>}
+                          {isAfterGrad && <span className="ml-1.5 text-xs text-slate-400">卒後</span>}
                         </span>
-                        {isSelected && <span className="text-blue-400 text-[0.7rem]">✓</span>}
+                        {isSelected && <span className="text-blue-400 text-sm">✓</span>}
                       </button>
                     )
                   })}
@@ -194,7 +194,7 @@ export default function TimetableGrid() {
         </div>
 
         {/* 年次ラベル */}
-        <span className="text-xs text-slate-400 ml-auto">
+        <span className="text-sm sm:text-base md:text-lg text-slate-400 ml-auto">
           {gradeLabel(academicYear, effectiveEnrollmentYear)}
         </span>
       </div>
@@ -208,8 +208,8 @@ export default function TimetableGrid() {
       )}
 
       {/* グリッド */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm bg-white flex-1 min-h-0">
-        <table className="w-full border-collapse table-fixed min-w-[340px] sm:min-w-[560px] h-full">
+      <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm bg-white flex-1 min-h-0">
+        <table className="w-full border-collapse table-fixed h-full">
           <colgroup>
             <col className="w-[2.2rem] sm:w-[3.5rem]" />
             {DAYS.map((_, i) => <col key={i} />)}
@@ -221,7 +221,7 @@ export default function TimetableGrid() {
                 <th
                   key={i}
                   className={[
-                    'border-b border-slate-100 py-1 sm:py-2 text-center text-xs sm:text-sm font-bold',
+                    'border-b border-slate-100 py-1 sm:py-2 text-center text-sm sm:text-base md:text-lg font-bold',
                     todayDow === i ? 'text-blue-500' : 'text-slate-600',
                   ].join(' ')}
                 >
@@ -237,8 +237,8 @@ export default function TimetableGrid() {
             {PERIODS.map((period) => (
               <tr key={period}>
                 <td className="border-b border-slate-100 py-1 px-0.5 text-center align-top">
-                  <span className="block text-[10px] sm:text-xs font-bold text-slate-600">{period}</span>
-                  <span className="hidden sm:block text-[0.55rem] sm:text-[0.6rem] text-slate-300 leading-none mt-0.5">
+                  <span className="block text-xs sm:text-sm md:text-base font-bold text-slate-600">{period}</span>
+                  <span className="hidden sm:block text-[0.65rem] sm:text-xs md:text-sm text-slate-400 leading-none mt-0.5">
                     {PERIOD_TIMES[period]}
                   </span>
                 </td>
